@@ -1,0 +1,7 @@
+{
+  "provenance": "synthetic",
+  "true_undamped_frequency_hz": 1248.6329500000002,
+  "damping_ratio": 0.012,
+  "seed": 42,
+  "description": "Generated ringdown. This is NOT a physical measurement."
+}

@@ -1,0 +1,9 @@
+{
+  "benchmark": "Cantilever first weak-axis bending frequency",
+  "analytical_hz": 82.25217652306469,
+  "calculix_hz": 82.73959,
+  "absolute_error_percent": 0.5925842908225517,
+  "tolerance_percent": 5.0,
+  "passed": true,
+  "interpretation": "Euler\u2013Bernoulli theory neglects shear deformation and 3D clamp effects; this is solver/mesh verification, not validation of the enclosure against hardware."
+}

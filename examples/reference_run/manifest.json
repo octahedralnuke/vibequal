@@ -1,0 +1,27 @@
+{
+  "vibequal_version": "1.0.0",
+  "python": "3.14.4",
+  "platform": "Linux-7.0.0-43-generic-x86_64-with-glibc2.43",
+  "created_utc": "2026-11-14T20:59:17.113968+00:00",
+  "dependencies": {
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "matplotlib": "3.11.2",
+    "gmsh": "4.15.2"
+  },
+  "solver_version": "2.23",
+  "solver_binary_sha256": "31be21fc2f0902bd9a05acc2651dbac6dc2a2573dabbf235e39a38cb6f458862",
+  "files_sha256": {
+    "config.resolved.json": "e5f425723dbbd818d1ebc0171935e6040cb06a38b56ecf19761fb17b813f2f4f",
+    "enclosure.step": "0677b73a76c8015e6c39f59ece74d4924e4d1f0b4a7d6accc087f62bb85e5596",
+    "enclosure.msh": "1e7568ebc8df5e97e4edc8a9dd55ac166e42c1223089e8fd671e5c928e6dcdc4",
+    "modal.inp": "168d279ddcc8cc3581c17f73d85e0acd571d256e06a3482dac0af9f8b571f807",
+    "modal.dat": "678c9da37e7058697137b97b72c8a52e3dc7abc5e42463354b29b884f57aaebf",
+    "modal.frd": "ac9f2a71ef6e4041611102b78bdfa30fb85e7398901458a72bb175e5566e2e9c",
+    "mesh.npz": "3cfc980b5675110a35c482c815c385e0e73f6159979ce6d3d524c58c1934f549",
+    "modes.npz": "bc01df13760b0a85e92a49852f918179175c8801aae85323a6f2e2bfaf87b210",
+    "modes.csv": "48dc1af516b17e598d1786b18d18da203f88d0e300d8807b31fff44550ecd343",
+    "response_psd.csv": "8119614b2db43dbdf14c8dc6f8ed295185df29a9e5fe30fe2db907f3dd18bf62",
+    "results.json": "daecf8ac9085a025254777eefa90dc331f497107fff975824853293349264aa1"
+  }
+}

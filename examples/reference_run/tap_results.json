@@ -1,0 +1,20 @@
+{
+  "provenance": "synthetic",
+  "sample_rate_hz": 12122.000001463373,
+  "samples": 36366,
+  "duration_s": 2.999917505,
+  "record_resolution_hz": 0.3472258027974957,
+  "dominant_peak_hz": 1247.0291236325609,
+  "expected_frequency_hz": 1212.265,
+  "difference_percent": 2.8677000187715365,
+  "candidate_peaks_hz": [
+    1247.061470747206,
+    1249.578857817488,
+    1248.5371804090953,
+    1250.099696521684,
+    1248.1031481555985
+  ],
+  "peak_to_median_spectral_ratio": 762.3983735250692,
+  "warnings": [],
+  "interpretation": "Dominant output-only spectral peak; mode identity is not established. Check mounting, tap/sensor positions and repeatability. No calibrated acceleration or input-force frequency-response function is measured."
+}
