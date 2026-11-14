@@ -1,4 +1,4 @@
-# VibeQual evaluation run
+# VibeQual analysis run
 
 Aluminium avionics tray — educational demonstration
 

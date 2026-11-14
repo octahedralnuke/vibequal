@@ -229,7 +229,7 @@ def create_report(out, summary, mesh, modal, spectra, tap_arrays=None):
         rendered = rendered.replace(token, value)
     (out / "report.html").write_text(rendered, encoding="utf-8")
     (out / "report.md").write_text(
-        f"# VibeQual evaluation run\n\n{summary['name']}\n\n"
+        f"# VibeQual analysis run\n\n{summary['name']}\n\n"
         f"Simulation: CalculiX {summary['solver']['version']}; C3D10; SI units.\n\n"
         f"- Nodes: {summary['mesh']['nodes']:,}; elements: {summary['mesh']['elements']:,}.\n"
         f"- CAD mass: {summary['mesh']['mass_kg']:.6f} kg.\n"

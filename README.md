@@ -4,17 +4,17 @@
 
 **Python · Gmsh · CalculiX · NumPy / SciPy**
 
-VibeQual turns an enclosure CAD model into a repeatable modal FEA run, estimates random-vibration response, and produces an offline interactive engineering report. It includes a generated aluminium tray, an independent PCB deflection screen, and a tap-test CSV analysis workflow.
+VibeQual is a Python workflow for studying vibration in an electronics enclosure. It generates or imports CAD, builds a quadratic solid mesh with Gmsh, runs modal analysis in CalculiX, and estimates response to a specified acceleration PSD. The outputs are an interactive report and the underlying solver files.
 
-This is a functional educational engineering project. The supplied results come from real CalculiX solves. The supplied tap signal is **synthetic**; no physical test or DO-160 / MIL-STD-810 qualification is claimed.
+The current reference model is an aluminium tray with idealized mounting patches. The repository also contains a separate PCB deflection estimate and a tap-signal processing path. Solver verification is recorded; physical frequency correlation is still pending. The example tap signal is synthetic.
 
 ![Generated enclosure mesh](examples/reference_run/figures/mesh.png)
 
-## Start with the finished example
+## Reference analysis
 
 Open **[examples/reference_run/report.html](examples/reference_run/report.html)** in a browser after downloading the repository. It works offline, including the rotatable, animated mode-shape viewer. GitHub displays HTML source rather than running the report: download it or open your local copy.
 
-The [submission report](docs/PROJECT_REPORT.pdf) is ready to read or print. The [demo walkthrough](docs/DEMO.md) explains how to demonstrate and defend the work.
+The [technical report](docs/PROJECT_REPORT.pdf) describes the model, calculations and verification. [WORKFLOW.md](docs/WORKFLOW.md) explains the inputs and generated results.
 
 ## Run it yourself
 
@@ -97,8 +97,8 @@ These are recorded results for the supplied model, not universal enclosure prope
 src/vibequal/       CAD, solver, dynamics, PCB, tap analysis, CLI, report
 examples/          Configurations, generated CAD, finished reference run
 tests/             Independent mathematical and end-to-end verification
-scripts/           Optional ADALM1000 capture, PDF report, GitHub publishing
-docs/              Theory, setup, evidence, demo, hardware and project report
+scripts/           Optional ADALM1000 capture and PDF report generation
+docs/              Theory, setup, verification, hardware and technical report
 .github/workflows/ Automated unit and solver integration checks
 ```
 
@@ -127,8 +127,7 @@ The bundled profile is educational and user-defined. It is **not copied from or 
 - [Theory and equations](docs/THEORY.md)
 - [Verification and recorded evidence](docs/VALIDATION.md)
 - [Hardware and tap-test procedure](docs/HARDWARE.md)
-- [Demo and viva preparation](docs/DEMO.md)
-- [Submission checklist](docs/SUBMISSION.md)
+- [Analysis workflow](docs/WORKFLOW.md)
 - [References](docs/REFERENCES.md)
 
 ## License and third-party software
