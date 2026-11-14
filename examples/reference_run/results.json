@@ -1,0 +1,214 @@
+{
+  "project": "VibeQual",
+  "version": "1.0.0",
+  "name": "Aluminium avionics tray \u2014 educational demonstration",
+  "created_utc": "2026-11-14T20:59:17.113968+00:00",
+  "provenance": "CalculiX finite-element simulation",
+  "physical_validation": "not_performed",
+  "qualification_status": "not_assessed",
+  "mesh": {
+    "nodes": 10473,
+    "elements": 5346,
+    "fixed_nodes": 348,
+    "volume_m3": 0.00010420553629867968,
+    "mass_kg": 0.2813549480064351,
+    "element_type": "C3D10",
+    "target_size_m": 0.009
+  },
+  "solver": {
+    "name": "CalculiX",
+    "version": "2.23"
+  },
+  "profile": {
+    "name": "Educational broadband PSD \u2014 NOT a DO-160 or MIL-STD-810 qualification profile",
+    "source": "User-defined illustrative breakpoints; replace with a documented project requirement.",
+    "duration_s": 60,
+    "breakpoints_hz_g2_per_hz": [
+      [
+        20,
+        0.005
+      ],
+      [
+        80,
+        0.04
+      ],
+      [
+        350,
+        0.04
+      ],
+      [
+        2000,
+        0.007
+      ]
+    ]
+  },
+  "response": {
+    "input_grms": 6.03668537119674,
+    "damping_ratio": 0.025,
+    "q": 20.0,
+    "axis": "z",
+    "probe_node": 7033,
+    "probe_xyz_m": [
+      0.08087485333831532,
+      0.04984955256571077,
+      0.0015
+    ],
+    "probe_snap_distance_m": 0.0017429867452294825,
+    "absolute_acceleration_grms": 19.542135692191284,
+    "relative_displacement_rms_m": 2.7567361561584922e-06,
+    "relative_displacement_3sigma_m": 8.270208468475478e-06,
+    "effective_mass_fraction_of_cad": 0.26235612912999745,
+    "modes": [
+      {
+        "mode": 1,
+        "frequency_hz": 1212.265,
+        "effective_mass_kg": 0.02787393,
+        "effective_mass_fraction_of_cad": 0.09907033872161534,
+        "probe_coefficient": 0.699350702414,
+        "miles_unit_sdof_grms": 20.97195678763837,
+        "miles_probe_modal_grms": 14.666752710430949,
+        "integrated_unit_sdof_grms": 21.486149462646708,
+        "inside_excitation_band": true
+      },
+      {
+        "mode": 2,
+        "frequency_hz": 1531.017,
+        "effective_mass_kg": 2.603706e-06,
+        "effective_mass_fraction_of_cad": 9.254168154670052e-06,
+        "probe_coefficient": 5.6677812952e-05,
+        "miles_unit_sdof_grms": 20.97195678763837,
+        "miles_probe_modal_grms": 0.0011886446440471943,
+        "integrated_unit_sdof_grms": 21.498936250909082,
+        "inside_excitation_band": true
+      },
+      {
+        "mode": 3,
+        "frequency_hz": 2004.177,
+        "effective_mass_kg": 0.03699579,
+        "effective_mass_fraction_of_cad": 0.13149152080721124,
+        "probe_coefficient": 0.8390081928876001,
+        "miles_unit_sdof_grms": 0.0,
+        "miles_probe_modal_grms": 0.0,
+        "integrated_unit_sdof_grms": 16.196758198664867,
+        "inside_excitation_band": false
+      },
+      {
+        "mode": 4,
+        "frequency_hz": 2219.412,
+        "effective_mass_kg": 1.276002e-06,
+        "effective_mass_fraction_of_cad": 4.535203695691946e-06,
+        "probe_coefficient": 2.6577514008570004e-05,
+        "miles_unit_sdof_grms": 0.0,
+        "miles_probe_modal_grms": 0.0,
+        "integrated_unit_sdof_grms": 8.803271772927715,
+        "inside_excitation_band": false
+      },
+      {
+        "mode": 5,
+        "frequency_hz": 2444.462,
+        "effective_mass_kg": 0.008823842,
+        "effective_mass_fraction_of_cad": 0.03136195777796729,
+        "probe_coefficient": 0.28294264118630996,
+        "miles_unit_sdof_grms": 0.0,
+        "miles_probe_modal_grms": 0.0,
+        "integrated_unit_sdof_grms": 7.625463489050502,
+        "inside_excitation_band": false
+      },
+      {
+        "mode": 6,
+        "frequency_hz": 2544.312,
+        "effective_mass_kg": 1.269494e-08,
+        "effective_mass_fraction_of_cad": 4.512072771405336e-08,
+        "probe_coefficient": -2.142281889146e-05,
+        "miles_unit_sdof_grms": 0.0,
+        "miles_probe_modal_grms": 0.0,
+        "integrated_unit_sdof_grms": 7.371311026684688,
+        "inside_excitation_band": false
+      },
+      {
+        "mode": 7,
+        "frequency_hz": 2623.627,
+        "effective_mass_kg": 3.365033e-07,
+        "effective_mass_fraction_of_cad": 1.1960098885209707e-06,
+        "probe_coefficient": -2.9865040383414e-06,
+        "miles_unit_sdof_grms": 0.0,
+        "miles_probe_modal_grms": 0.0,
+        "integrated_unit_sdof_grms": 7.218714838343945,
+        "inside_excitation_band": false
+      },
+      {
+        "mode": 8,
+        "frequency_hz": 3230.49,
+        "effective_mass_kg": 3.422543e-07,
+        "effective_mass_fraction_of_cad": 1.216450261227224e-06,
+        "probe_coefficient": 0.00011757360589469,
+        "miles_unit_sdof_grms": 0.0,
+        "miles_probe_modal_grms": 0.0,
+        "integrated_unit_sdof_grms": 6.641675361062341,
+        "inside_excitation_band": false
+      },
+      {
+        "mode": 9,
+        "frequency_hz": 3754.024,
+        "effective_mass_kg": 2.895958e-05,
+        "effective_mass_fraction_of_cad": 0.00010292898776152905,
+        "probe_coefficient": -0.00032078084538869996,
+        "miles_unit_sdof_grms": 0.0,
+        "miles_probe_modal_grms": 0.0,
+        "integrated_unit_sdof_grms": 6.4427174936853495,
+        "inside_excitation_band": false
+      },
+      {
+        "mode": 10,
+        "frequency_hz": 4201.895,
+        "effective_mass_kg": 8.810233e-05,
+        "effective_mass_fraction_of_cad": 0.00031313588271418964,
+        "probe_coefficient": 0.018275864623288,
+        "miles_unit_sdof_grms": 0.0,
+        "miles_probe_modal_grms": 0.0,
+        "integrated_unit_sdof_grms": 6.344750843065202,
+        "inside_excitation_band": false
+      }
+    ]
+  },
+  "pcb": {
+    "model": "independent_simply_supported_isotropic_plate",
+    "natural_frequency_hz": 428.4315909402371,
+    "first_mode_participation": 1.6211389382774044,
+    "relative_deflection_3sigma_m": 0.00013843508373744296,
+    "allowable_3sigma_m": 0.0004723017136322925,
+    "margin": 2.4117197814396785,
+    "screening_result": "below_empirical_limit",
+    "nominal_reference_stress_reversals": 20000000,
+    "excitation_assumption": "Direct application of the input PSD to independent PCB supports; enclosure-to-PCB coupling is NOT modeled.",
+    "limitations": "Isotropic, four-edge simply supported, first plate mode, smeared component mass, empirical package factor. No predicted service life or solder-joint stress."
+  },
+  "warnings": [
+    "Simulation only. No physical qualification or compliance is demonstrated.",
+    "Input PSD is illustrative unless replaced with a documented requirement.",
+    "Linear elastic model; mounting patches idealize perfectly clamped connections.",
+    "Probe response uses a truncated, coherent modal sum for one base-input axis.",
+    "Extracted directional modal mass is 26.2% of CAD mass. Constrained mass is included in the denominator. Increase mode count and check response convergence before relying on amplitudes.",
+    "PCB result is an independent plate estimate with direct base PSD; it is not an enclosure-coupled fatigue-life prediction."
+  ],
+  "tap": {
+    "provenance": "synthetic",
+    "sample_rate_hz": 12122.000001463373,
+    "samples": 36366,
+    "duration_s": 2.999917505,
+    "record_resolution_hz": 0.3472258027974957,
+    "dominant_peak_hz": 1247.0291236325609,
+    "expected_frequency_hz": 1212.265,
+    "difference_percent": 2.8677000187715365,
+    "candidate_peaks_hz": [
+      1247.061470747206,
+      1249.578857817488,
+      1248.5371804090953,
+      1250.099696521684,
+      1248.1031481555985
+    ],
+    "peak_to_median_spectral_ratio": 762.3983735250692,
+    "warnings": [],
+    "interpretation": "Dominant output-only spectral peak; mode identity is not established. Check mounting, tap/sensor positions and repeatability. No calibrated acceleration or input-force frequency-response function is measured."
+  }
+}

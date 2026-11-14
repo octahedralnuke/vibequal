@@ -1,0 +1,29 @@
+{
+  "rows": [
+    {
+      "size_m": 0.012,
+      "nodes": 6870,
+      "elements": 3525,
+      "first_frequency_hz": 1235.798,
+      "max_first_three_sorted_frequency_change_percent": null,
+      "probe_acceleration_grms": 17.315371687604657
+    },
+    {
+      "size_m": 0.009,
+      "nodes": 10473,
+      "elements": 5346,
+      "first_frequency_hz": 1212.265,
+      "max_first_three_sorted_frequency_change_percent": 3.480481015399333,
+      "probe_acceleration_grms": 19.542135692191284
+    },
+    {
+      "size_m": 0.006,
+      "nodes": 19214,
+      "elements": 9757,
+      "first_frequency_hz": 1201.373,
+      "max_first_three_sorted_frequency_change_percent": 2.396133814409598,
+      "probe_acceleration_grms": 21.4917988879983
+    }
+  ],
+  "interpretation": "Sorted frequency comparison only; inspect mode shapes for swaps. Frequency convergence does not establish convergence of stresses or response amplitudes."
+}
