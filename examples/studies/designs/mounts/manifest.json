@@ -1,0 +1,30 @@
+{
+  "version": "1.0.0",
+  "created_utc": "2026-11-14T21:21:42.416451+00:00",
+  "dependencies": {
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "gmsh": "4.15.2"
+  },
+  "solver_binary_sha256": "31be21fc2f0902bd9a05acc2651dbac6dc2a2573dabbf235e39a38cb6f458862",
+  "files_sha256": {
+    "enclosure.step": "875ab4170ffe033c4736bc1867b420a26641f9a5b82cc70c42ed29fab471a969",
+    "modal.inp": "2cd965135ae765dfc4a360d62547f56fb67e0cc8fea3cfaf24e4ced6d4322f1e",
+    "modal.dat": "f8dabbbb5378c4723d7f3b84ac9c52bfc8a9280afc7672833b581f4b2c97491c",
+    "enclosure.msh": "03409844207d99becac47fbae98766171a630d656ea447202bddaaf34f079f64",
+    "response.json": "ccbcb2a21985a6f76e6b2df6302f9ce1fbfb6c1c1d0313be95d9f89cd492d397",
+    "gmsh.log": "a0121009052f19baae3999631e396bd595078de5738f1c1261b5002760855afa",
+    "modes.npz": "7ad9f3193aad465e0b85df2f898a9eeed61b10cc6a7744dcd2c9fcfa058bff47",
+    "modal.sta": "20946efba93047e4092386fb9fedd29e43961806698459a19066356660f2e1a9",
+    "modal.cvg": "65086dedb4572132b815ace04b294909c7f6f337111f9704fc310b02320f67f7",
+    "config.resolved.json": "73bc6975b153f6f733a9e9b9dc58face73cc1c5083a2e1c24022b98533bf1e7a",
+    "solver_tables.txt": "ec0db4b98e523ba7bb866015b82ab1d761d7eb4f96b69725949b94ae49170b8d",
+    "modal.12d": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ccx.log": "bf0939072040b873215a5de81100b5552be55ccf7e82b04fa84578a2fd03d529",
+    "modal.frd": "3909ac854cc3221a26fa7542de4910459fd85415dc8bc2af66c8d899fa986025",
+    "spooles.out": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "modes.csv": "6fbe6f3a46f74f930de106eae314d5e7c6865121e3ec39d38e594507bb63fe3e",
+    "mesh.npz": "63833c9c1ae2fa2b22d7ef9474786bb59c43afe2e73c476acf0fe553917ac2e8"
+  },
+  "archive_note": "The repository may retain selected evidence files only. Re-running the study produces all raw files. Hashes describe the original complete run."
+}

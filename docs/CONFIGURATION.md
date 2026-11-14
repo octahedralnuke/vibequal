@@ -22,6 +22,8 @@ The path resolves relative to the JSON configuration. Gmsh converts the STEP fil
 
 `mesh.size_m` is the nominal maximum mesh size. Curvature and geometric constraints can create smaller elements. Only quadratic tetrahedra are accepted; the six mid-edge nodes are mapped into CalculiX C3D10 ordering explicitly.
 
+An optional `geometry.rib` object adds a fused longitudinal rib with `width_m` and `height_m` measured above the inner base. It spans the cavity along X and must fit inside it without intersecting the mounting holes. `examples/design_variants.json` demonstrates this option.
+
 Meshing is rejected when CAD maximum extent divided by target mesh size exceeds 1000. This catches gross unit mistakes and impractically fine inputs before mesh generation; simplify the model or increase the target size.
 
 ## Supports
@@ -41,7 +43,7 @@ Each box is `[xmin,ymin,zmin,xmax,ymax,zmax]`. Supports are ideal clamps, not bo
 
 ## Modal and response settings
 
-- `analysis.modes`: number of eigenmodes, integer 1–100.
+- `analysis.modes`: number of eigenmodes, integer 1–100; the reference configuration uses 50.
 - `analysis.damping_ratio`: critical damping fraction, e.g. `0.025` means 2.5%. Modal FEA does not identify this value.
 - `analysis.axis`: `x`, `y` or `z`; both input and reported probe acceleration use this axis.
 - `analysis.probe_xyz_m`: desired response location. The nearest FE node is used. Its actual coordinate and snap distance are saved. Clamped probe nodes are rejected.
@@ -56,6 +58,8 @@ Mesh changes can move the nearest probe node and slightly alter the discretized 
 `profile.name` and `profile.source` must describe the actual origin of a profile. The default is deliberately educational. If you use a standards-derived profile, record its actual revision, section, category, aircraft/installation, axis and tailoring rationale. Do not simply rename the demonstration profile.
 
 `duration_s` records intended exposure duration. Stationary RMS response does not depend on exposure duration, and this project does not turn it into predicted fatigue life.
+
+`vibequal run CONFIG --profile PROFILE.json` explicitly overrides the input spectrum. A cited public Category 24 reference is included; see [PROFILE.md](PROFILE.md). A `standard_reference` metadata block is retained in the results and changes the interpretation note, without claiming applicability or qualification.
 
 ## PCB
 

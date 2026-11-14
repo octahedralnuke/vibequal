@@ -8,6 +8,10 @@ $$K\phi_j=\omega_j^2 M\phi_j,\qquad f_j=\omega_j/(2\pi).$$
 
 CalculiX supplies mass-normalized modes, $\phi_j^T M\phi_j=1$. For unit rigid translation $r$ along the chosen base-input axis, the participation factor is $\Gamma_j=\phi_j^T M r$. Translational effective modal mass is $\Gamma_j^2$. Only the first three participation/mass columns are interpreted as translation; rotational columns have different dimensions.
 
+Participation is the projection of a unit rigid-base translation into a mode through the mass matrix; squaring it gives effective translational modal mass for a mass-normalized mode. A mode can have a low frequency but weak participation in a chosen input direction. The code reports both available solver mass and full CAD mass denominators.
+
+C3D10 elements use quadratic displacement interpolation, which represents displacement curvature in bending more effectively than a coarse constant-strain four-node tetrahedral mesh. This choice does not remove the need for mesh refinement.
+
 Frequency changes with stiffness, density, boundary conditions, discretization and payload. A plausible eigenfrequency alone does not establish model accuracy.
 
 ## 2. PSD integration
@@ -66,3 +70,7 @@ $B$ is board edge length parallel to the component, $h$ board thickness, $L$ com
 The CSV contains uniform sample times and sensor voltage. The mean is removed, the record is cropped around its largest excursion, and a zero-padded periodogram is evaluated. An interior spectral peak in the search band is refined with a three-point log-parabolic interpolation. Actual record resolution is based on record duration; zero padding improves interpolation rather than adding physical information.
 
 The reported frequency difference is $100(f_{peak}-f_{FEA})/f_{FEA}$. An output-only dominant peak need not be the first structural mode. Sensor location, excitation location, fixture modes and sensor resonances can change which peak dominates. No force measurement, calibrated acceleration or full experimental modal identification is claimed.
+
+## 7. Band-edge example
+
+The illustrative reference profile ends at 2000 Hz. Mode 3 at 2004.177 Hz has zero PSD at its own resonance, so Miles returns zero. The finite-band unit-participation SDOF integral remains about 16.2 g RMS because in-band forcing excites the resonance tail. That is a unit oscillator result, not an isolated modal contribution to the full probe response. The full transfer includes probe coefficients, the rigid-base term and coherent cross terms. Mesh refinement can move this mode inside the excitation band, helping explain why response amplitude is more sensitive than the first natural frequency.

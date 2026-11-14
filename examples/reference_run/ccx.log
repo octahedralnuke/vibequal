@@ -38,6 +38,126 @@ U^T*M*U=1.000000 for eigenmode 7
 U^T*M*U=1.000000 for eigenmode 8
 U^T*M*U=1.000000 for eigenmode 9
 U^T*M*U=1.000000 for eigenmode 10
+U^T*M*U=1.000000 for eigenmode 11
+U^T*M*U=1.000000 for eigenmode 12
+U^T*M*U=1.000000 for eigenmode 13
+U^T*M*U=1.000000 for eigenmode 14
+U^T*M*U=1.000000 for eigenmode 15
+U^T*M*U=1.000000 for eigenmode 16
+U^T*M*U=1.000000 for eigenmode 17
+U^T*M*U=1.000000 for eigenmode 18
+U^T*M*U=1.000000 for eigenmode 19
+U^T*M*U=1.000000 for eigenmode 20
+U^T*M*U=1.000000 for eigenmode 21
+U^T*M*U=1.000000 for eigenmode 22
+U^T*M*U=1.000000 for eigenmode 23
+U^T*M*U=1.000000 for eigenmode 24
+U^T*M*U=1.000000 for eigenmode 25
+U^T*M*U=1.000000 for eigenmode 26
+U^T*M*U=1.000000 for eigenmode 27
+U^T*M*U=1.000000 for eigenmode 28
+U^T*M*U=1.000000 for eigenmode 29
+U^T*M*U=1.000000 for eigenmode 30
+U^T*M*U=1.000000 for eigenmode 31
+U^T*M*U=1.000000 for eigenmode 32
+U^T*M*U=1.000000 for eigenmode 33
+U^T*M*U=1.000000 for eigenmode 34
+U^T*M*U=1.000000 for eigenmode 35
+U^T*M*U=1.000000 for eigenmode 36
+U^T*M*U=1.000000 for eigenmode 37
+U^T*M*U=1.000000 for eigenmode 38
+U^T*M*U=1.000000 for eigenmode 39
+U^T*M*U=1.000000 for eigenmode 40
+U^T*M*U=1.000000 for eigenmode 41
+U^T*M*U=1.000000 for eigenmode 42
+U^T*M*U=1.000000 for eigenmode 43
+U^T*M*U=1.000000 for eigenmode 44
+U^T*M*U=1.000000 for eigenmode 45
+U^T*M*U=1.000000 for eigenmode 46
+U^T*M*U=1.000000 for eigenmode 47
+U^T*M*U=1.000000 for eigenmode 48
+U^T*M*U=1.000000 for eigenmode 49
+U^T*M*U=1.000000 for eigenmode 50
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the stress calculation.
+
  Using up to 1 cpu(s) for the stress calculation.
 
  Using up to 1 cpu(s) for the stress calculation.
@@ -106,5 +226,5 @@ U^T*M*U=1.000000 for eigenmode 10
 
 ________________________________________
 
-Total CalculiX Time: 2.731199
+Total CalculiX Time: 12.021860
 ________________________________________

@@ -1,24 +1,47 @@
 # VibeQual
 
-### Automated vibration screening for electronics enclosures
+**Enclosure vibration studies with Python, Gmsh and CalculiX.**
 
-**Python · Gmsh · CalculiX · NumPy / SciPy**
+VibeQual studies how enclosure geometry and mounting affect natural frequencies and response to random base acceleration. It generates or imports CAD, meshes quadratic solids, runs CalculiX modal analysis, and integrates the response to an acceleration PSD. The report links each result to its configuration and solver output.
 
-VibeQual is a Python workflow for studying vibration in an electronics enclosure. It generates or imports CAD, builds a quadratic solid mesh with Gmsh, runs modal analysis in CalculiX, and estimates response to a specified acceleration PSD. The outputs are an interactive report and the underlying solver files.
+The reference model is a 160 × 100 × 40 mm aluminium tray with idealized mounting patches. It is a controlled structural model, not a validated model of an installed avionics assembly. Physical frequency correlation is pending; the bundled tap signal is synthetic.
 
-The current reference model is an aluminium tray with idealized mounting patches. The repository also contains a separate PCB deflection estimate and a tap-signal processing path. Solver verification is recorded; physical frequency correlation is still pending. The example tap signal is synthetic.
+## Results and design decision
 
-![Generated enclosure mesh](examples/reference_run/figures/mesh.png)
+The study holds the outer envelope, material, 9 mm target mesh, 50-mode basis, damping and excitation fixed. Three changes are compared with the baseline:
 
-## Reference analysis
+| Design | First frequency | Change | Mass | Mass change |
+|---|---:|---:|---:|---:|
+| Baseline: 3 mm walls/base | 1212.27 Hz | — | 0.28135 kg | — |
+| 4 mm walls/base | 1613.96 Hz | +33.14% | 0.36810 kg | +30.83% |
+| 3 × 8 mm longitudinal rib | 1324.73 Hz | +9.28% | 0.29133 kg | +3.55% |
+| Mounts moved 22 mm inboard | 1379.92 Hz | +13.83% | 0.28135 kg | 0.00% |
 
-Open **[examples/reference_run/report.html](examples/reference_run/report.html)** in a browser after downloading the repository. It works offline, including the rotatable, animated mode-shape viewer. GitHub displays HTML source rather than running the report: download it or open your local copy.
+For a fixed mounting interface, the rib is the more mass-efficient candidate among the tested stiffness changes. Its frequency gain remains **9.07% on the finer 6 mm meshes**: 1310.304 Hz versus 1201.373 Hz for the refined baseline. Moving the mounts is attractive when the installation interface can change. This comparison does not establish a global optimum, matched mode identity, or qualified hardware.
 
-The [technical report](docs/PROJECT_REPORT.pdf) describes the model, calculations and verification. [WORKFLOW.md](docs/WORKFLOW.md) explains the inputs and generated results.
+![Controlled design comparison](examples/studies/designs/design_comparison.png)
 
-## Run it yourself
+The [design study](docs/STUDIES.md) records the controls, tradeoffs, refinement and remaining uncertainty. Raw frequency/participation tables and solver decks are retained with the results.
 
-Recommended: Ubuntu 22.04 or later, including Ubuntu under Windows WSL. Python 3.11+.
+## Modal truncation
+
+One 50-mode eigenbasis is evaluated using smaller prefixes, keeping the mesh and probe node unchanged:
+
+| Retained modes | Z effective mass / solver total | Probe acceleration |
+|---:|---:|---:|
+| 10 | 26.32% | 19.5421 g RMS |
+| 20 | 62.32% | 19.3455 g RMS |
+| 30 | 84.38% | 19.3727 g RMS |
+| 40 | 84.52% | 19.3727 g RMS |
+| 50 | 90.26% | 19.3777 g RMS |
+
+At 50 modes the X/Y/Z fractions are 83.76% / 77.89% / 90.26% of the solver's total effective mass. The Z fraction is 89.96% when normalized by full CAD mass, including constrained material. The default response is Z-axis only; the X and Y directions need further study.
+
+Probe acceleration changes by **0.0257% from 40 to 50 modes** on the fixed mesh. Mesh refinement still changes amplitude by about **10.22% from 9 to 6 mm**, so the amplitude is not fully converged. Mode-count stability does not resolve mounting, mesh or damping uncertainty.
+
+## Run an analysis
+
+Ubuntu or Ubuntu under Windows WSL; Python 3.11+:
 
 ```bash
 sudo apt-get update
@@ -30,106 +53,50 @@ vibequal doctor
 vibequal demo --out runs/demo
 ```
 
-Then open `runs/demo/report.html`. Every run writes into a new directory; existing results are never silently overwritten. Detailed Windows, Linux, native solver and troubleshooting instructions: [INSTALL.md](docs/INSTALL.md).
-
-## What works
-
-- Parametric OpenCASCADE tray with four mounting holes; STEP export and single-solid STEP import.
-- Quadratic tetrahedral meshing, explicit support selection, and C3D10 CalculiX input generation.
-- Real modal frequencies, mass-normalized mode shapes, participation factors and effective modal masses.
-- Piecewise power-law acceleration PSDs with analytical input g RMS integration.
-- Miles' equation estimates alongside numerical SDOF integration.
-- Probe response from a complex, coherent modal sum under one axis of base acceleration.
-- Separate simply supported PCB first-mode estimate and empirical Steinberg deflection margin.
-- Tap-test CSV analysis, sample-spacing checks, spectral peak detection and frequency comparison.
-- Synthetic ringdown generator with provenance metadata; optional ADALM1000 capture adapter.
-- Mesh refinement, analytical cantilever verification, unit tests, end-to-end tests and GitHub Actions.
-- Self-contained HTML report, CSV/JSON results, solver evidence, and a hash/version manifest.
-
-## Commands
+Open `runs/demo/report.html` in a browser. The report works offline and includes a rotatable, animated mode viewer. `demo` additionally creates a synthetic tap signal. A configuration-driven run omits that signal unless requested:
 
 ```bash
-# Configurable full analysis; synthetic tap is opt-in for the run command
-vibequal run examples/enclosure.json --out runs/custom --synthetic-tap
-
-# Re-run the independent beam benchmark
+vibequal run examples/enclosure.json --out runs/tray
+vibequal mode-study examples/enclosure.json --counts 10 20 30 40 50 --out runs/modes
+vibequal design-study examples/design_variants.json --out runs/designs
+vibequal run examples/ribbed_refined.json --out runs/rib-refined
+vibequal converge examples/enclosure.json --sizes .012 .009 .006 --out runs/mesh-study
 vibequal validate --out runs/beam
-
-# Compare three mesh sizes (metres)
-vibequal converge examples/enclosure.json --sizes .012 .009 .006 --out runs/refinement
-
-# Analyze measured data after converting it to time_s,voltage_v columns
-vibequal tap measurement.csv --expected-hz 1212.265 --band 20 2000 \
-  --provenance physical --out runs/tap
-
-# Generate clearly labeled artificial data for a software-only demonstration
-vibequal make-tap --frequency-hz 600 --out synthetic_tap.csv
-
-# Test the mathematics without needing the external solver
-python -m pytest -m 'not integration' -q
-
-# Run all tests, including real CalculiX solves and STEP round-trip
 python -m pytest -q
 ```
 
-For a solver outside PATH, add `--ccx /absolute/path/to/ccx` to run/validate/converge or set `CCX_BIN`. See [CONFIGURATION.md](docs/CONFIGURATION.md) to change geometry, supports, material, damping, profile, probe location or PCB assumptions.
+Every run uses a new directory. See [installation](docs/INSTALL.md), [configuration](docs/CONFIGURATION.md) and [workflow](docs/WORKFLOW.md) for details. Native Windows solver/hardware operation is not claimed; Windows unit checks and Linux/WSL analysis are supported. Set `CCX_BIN` or pass `--ccx` when the solver is outside PATH.
 
-## Recorded reference results
+## Public reference profile
 
-| Quantity | Supplied demonstration |
-|---|---:|
-| Enclosure | Open tray, 160 × 100 × 40 mm, 3 mm walls/base |
-| Material | Nominal aluminium, E = 68.9 GPa, density = 2700 kg/m³ |
-| Mesh | 10,473 nodes; 5,346 C3D10 elements; 9 mm target size |
-| First natural frequency | 1212.265 Hz |
-| Illustrative base acceleration | 6.0367 g RMS |
-| Probe acceleration, 10-mode model | 19.5421 g RMS |
-| Assumed damping | 2.5% of critical; Q = 20 |
-| Beam benchmark error | 0.593% against Euler-Bernoulli first bending frequency |
-| Refined 6 mm enclosure first frequency | 1201.373 Hz |
-| Physical experimental validation | Pending |
+An optional **MIL-STD-810H with Change 1, Method 514.8, Annex E, Figure 514.8E-1, Category 24** profile is included with document provenance. Its integral is 7.6942 g RMS, rounded to 7.7 in the figure, with one hour per axis specified. Annex E explicitly excludes minimum-integrity testing from qualification use. No DO-160 curves are included.
 
-These are recorded results for the supplied model, not universal enclosure properties. Mesher/solver versions and platforms can shift results. The first frequency changed by about 0.91% from the 9 mm to the 6 mm mesh, while probe acceleration changed by about 9.98% relative to the 9 mm result. Response amplitude needs further refinement; see [VALIDATION.md](docs/VALIDATION.md).
-
-## How it is organized
-
-```text
-src/vibequal/       CAD, solver, dynamics, PCB, tap analysis, CLI, report
-examples/          Configurations, generated CAD, finished reference run
-tests/             Independent mathematical and end-to-end verification
-scripts/           Optional ADALM1000 capture and PDF report generation
-docs/              Theory, setup, verification, hardware and technical report
-.github/workflows/ Automated unit and solver integration checks
+```bash
+vibequal run examples/enclosure.json \
+  --profile examples/profiles/mil_std_810h_cat24.json --out runs/category24
 ```
 
-```mermaid
-flowchart LR
-    A[Configuration / STEP] --> B[Gmsh CAD and tetra10 mesh]
-    B --> C[CalculiX modal solution]
-    C --> D[Modes and participation]
-    P[User-defined acceleration PSD] --> E[Miles and PSD integration]
-    D --> E
-    P --> F[Independent PCB plate / Steinberg screen]
-    T[Tap CSV / synthetic signal] --> G[Spectral peak comparison]
-    E --> H[HTML report and evidence]
-    F --> H
-    G --> H
-```
+This performs a numerical single-axis screening calculation, not a physical test or compliance assessment. [PROFILE.md](docs/PROFILE.md) gives the breakpoints, source, reconstruction convention and applicability limits.
 
-## Engineering boundaries
+## Reference files
 
-The default model is a tray without a lid, payload, PCB coupling, bolt contact or preload. Supports are ideal clamps. The response is linear, uses assumed damping, and is truncated to the extracted modes. The PCB check applies the base PSD directly to a separate plate model. Its margin is not a fatigue-life prediction. A tap peak does not validate amplitudes or establish mode identity by itself.
+- [Interactive reference report](examples/reference_run/report.html): download/open locally; GitHub displays HTML source.
+- [Technical report](docs/PROJECT_REPORT.pdf): methods, verification, modal study and design comparison.
+- [Mode-count results](examples/studies/mode_count/mode_count.csv) and [design results](examples/studies/designs/design_comparison.csv).
+- [Recorded verification](docs/VALIDATION.md): beam analytical error 0.593%, mesh and mode-count studies.
+- [Theory](docs/THEORY.md): equations, units, participation, coherent summation and band-edge behavior.
+- [Hardware workflow](docs/HARDWARE.md): ADALM1000 acquisition and sensor conditioning requirements.
 
-The bundled profile is educational and user-defined. It is **not copied from or labeled as a DO-160 or MIL-STD-810 requirement**. A real standards-based assessment must identify the applicable revision, section, category, installation, axes and duration. Qualification testing is outside this project.
+## Implemented methods
 
-## Documentation
+Gmsh generates/imports a single solid and creates C3D10-compatible quadratic tetrahedra. CalculiX supplies mass-normalized mode shapes, participation and effective masses. Piecewise power-law PSD integration provides input g RMS. Miles estimates are compared with numerical SDOF integration; the full probe calculation sums complex modal transfers before integrating, retaining common-input cross terms.
 
-- [Theory and equations](docs/THEORY.md)
-- [Verification and recorded evidence](docs/VALIDATION.md)
-- [Hardware and tap-test procedure](docs/HARDWARE.md)
-- [Analysis workflow](docs/WORKFLOW.md)
-- [References](docs/REFERENCES.md)
+A separate simply supported PCB plate model gives a first-mode deflection estimate and Steinberg margin. It is not coupled to the enclosure and does not predict service life. The tap pipeline reads uniform `time_s,voltage_v` CSV data and compares a spectral peak with a reference frequency. It does not establish mode identity or calibrated acceleration.
 
-## License and third-party software
+The 2004 Hz band-edge case illustrates a limit of Miles' equation. Its zero local PSD produces a zero Miles estimate, while the **unit-participation SDOF** integral remains about 16.2 g RMS under the illustrative profile. That number is not a standalone contribution to the full probe response; modal coefficients, base motion and coherent cross terms matter.
 
-Original project code and generated CAD: MIT, see [LICENSE](LICENSE). CalculiX and Gmsh are separately installed third-party tools with their own licenses. No third-party solver executable or proprietary standards text is bundled. See [THIRD_PARTY.md](THIRD_PARTY.md).
+## Model boundaries
+
+The tray has no lid, payload, coupled PCB, bolt contact or preload. Its 1212 Hz first mode is specific to its geometry and constraints; it is not a representative frequency for all avionics boxes. Damping is assumed. Sorted frequencies are compared without MAC-based mode tracking. A real assembly model should follow a specific physical test article and mounting arrangement.
+
+Code and generated CAD are MIT licensed. Gmsh, CalculiX and dependencies have their own licenses; solver binaries are not bundled. See [THIRD_PARTY.md](THIRD_PARTY.md) and [references](docs/REFERENCES.md).

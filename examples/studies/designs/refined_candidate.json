@@ -1,0 +1,9 @@
+{
+  "baseline_first_hz": 1201.373,
+  "ribbed_first_hz": 1310.304,
+  "ribbed_gain_percent": 9.067208935110083,
+  "mesh_target_m": 0.006,
+  "modes": 50,
+  "ribbed_nodes": 20660,
+  "ribbed_elements": 10540
+}

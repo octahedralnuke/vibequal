@@ -1,0 +1,30 @@
+{
+  "version": "1.0.0",
+  "created_utc": "2026-11-14T21:21:07.677593+00:00",
+  "dependencies": {
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "gmsh": "4.15.2"
+  },
+  "solver_binary_sha256": "31be21fc2f0902bd9a05acc2651dbac6dc2a2573dabbf235e39a38cb6f458862",
+  "files_sha256": {
+    "enclosure.step": "61df74ca493f63227ee803bc8f344fe57a108ff0f85caf768d0960d757424a5c",
+    "modal.inp": "0013968724baa464c40efb4c5cbdeabb3d32a1869d9d443881f8a6dac29d69d9",
+    "modal.dat": "6c15e90082639b0ac1cbbb4ec0d0cfcdd163b0184569d9f587fa8ab1b97d745c",
+    "enclosure.msh": "d44483cf4767b7321d17d2646fc56bb525520dc464ce5c3a4b502a0ca2971523",
+    "response.json": "2a7d5e6956abe267cda2492e0c877e6c724da259aeceb2697a0212c5db7736fd",
+    "gmsh.log": "e39b87315ab341aebaccb016e1d8daf505c46a6b2a51fcbfe39415d3a556b932",
+    "modes.npz": "bf93b19e3f6a7fe4da826495b9cda973678ab5275b2fb5f2aa2d195854761a66",
+    "modal.sta": "20946efba93047e4092386fb9fedd29e43961806698459a19066356660f2e1a9",
+    "modal.cvg": "65086dedb4572132b815ace04b294909c7f6f337111f9704fc310b02320f67f7",
+    "config.resolved.json": "9638a9c6947efc18501cacddaa6a5c9dde263eeb1d99b22946c4cbd1313ffe3b",
+    "solver_tables.txt": "f7975417b9903a8a022b8bb695a42d55098eedd7cd279150a87d8bdc03f3b047",
+    "modal.12d": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ccx.log": "3fccd225046a51ac43e0de499a90efa57ea8d1770421c5d075803d2a3fa36abe",
+    "modal.frd": "440db1df5fcbfcd3067cc6a169094153a32b51596362ff029255f71aed1f70f3",
+    "spooles.out": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "modes.csv": "a59ed760cb04571c15ad9c52075486b374994d3d5333ea4d18cdbb2bb665cab1",
+    "mesh.npz": "c8a1066a2d69ede5ee908b0c3d5149478329cfea913445c2e3578864b980cc53"
+  },
+  "archive_note": "The repository may retain selected evidence files only. Re-running the study produces all raw files. Hashes describe the original complete run."
+}

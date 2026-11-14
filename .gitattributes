@@ -2,5 +2,7 @@
 *.pdf binary
 *.png binary
 *.npz binary
+*.csv -text
 *.step -diff -text
 examples/reference_run/** -diff -text
+examples/studies/**/modal.inp -diff -text

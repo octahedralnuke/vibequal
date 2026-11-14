@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate the printable evaluation report from recorded run and verification JSON."""
+"""Generate the technical report from recorded analysis and study JSON files."""
 
 import argparse
 import json
@@ -27,6 +27,18 @@ def build(run, verification, output):
     benchmark = json.loads((verification / "validation.json").read_text())
     refinement = json.loads((verification / "convergence.json").read_text())["rows"]
     r, pcb = summary["response"], summary["pcb"]
+    studies = run.parent / "studies"
+    modes = json.loads((studies / "mode_count/mode_count.json").read_text())
+    designs = json.loads((studies / "designs/design_comparison.json").read_text())
+    refined = json.loads((studies / "designs/refined_candidate.json").read_text())
+    frequency_change = (
+        100
+        * abs(refinement[-1]["first_frequency_hz"] - refinement[-2]["first_frequency_hz"])
+        / refinement[-1]["first_frequency_hz"]
+    )
+    amplitude_change = 100 * (
+        refinement[-1]["probe_acceleration_grms"] / refinement[-2]["probe_acceleration_grms"] - 1
+    )
     output.parent.mkdir(parents=True, exist_ok=True)
     ink, teal, muted = (colors.HexColor(x) for x in ["#172c3e", "#087d82", "#647b8c"])
     styles = getSampleStyleSheet()
@@ -116,7 +128,7 @@ def build(run, verification, output):
 
     story.extend(
         [
-            p("ENGINEERING PROJECT / EVALUATION EDITION", "KickerVQ"),
+            p("STRUCTURAL DYNAMICS / TECHNICAL REPORT", "KickerVQ"),
             p("VibeQual", "TitleVQ"),
             p("Automated vibration screening<br/>for electronics enclosures", "HeadingVQ"),
             p("Python - Gmsh - CalculiX", "KickerVQ"),
@@ -167,7 +179,7 @@ def build(run, verification, output):
             "Modal FEA",
             "CalculiX solves K phi = omega^2 M phi. The parser retains natural frequencies, "
             "mass-normalized shapes, participation factors and translational effective modal masses. "
-            "The default run extracts ten modes. Modal damping is assumed as 2.5% of critical.",
+            f"The reference run extracts {len(r['modes'])} modes. Modal damping is assumed as 2.5% of critical.",
         ),
         (
             "Random vibration",
@@ -226,8 +238,9 @@ def build(run, verification, output):
             "The first three natural frequencies are "
             + ", ".join(f"{m['frequency_hz']:.3f} Hz" for m in r["modes"][:3])
             + ". The third mode lies close to the 2000 Hz profile upper cutoff, making response "
-            "sensitive to small frequency changes. The ten modes capture "
-            f"{r['effective_mass_fraction_of_cad'] * 100:.1f}% of full CAD mass in the excitation direction. "
+            f"sensitive to small frequency changes. The {len(r['modes'])} modes capture "
+            f"{r['effective_mass_fraction_of_solver_total'] * 100:.2f}% of the solver's available "
+            f"Z-direction mass ({r['effective_mass_fraction_of_cad'] * 100:.2f}% of full CAD mass). "
             "Mass coverage and response convergence must be checked before engineering reliance."
         )
     )
@@ -301,10 +314,10 @@ def build(run, verification, output):
     story.append(image(verification / "convergence.png", 158 * mm))
     story.append(
         p(
-            "From 9 to 6 mm, first-frequency change is approximately 0.91% and probe "
-            "acceleration increases by about 9.98%. Support discretization, nearest-node "
+            f"From 9 to 6 mm, first-frequency change is {frequency_change:.2f}% and probe "
+            f"acceleration increases by {amplitude_change:.2f}%. Support discretization, nearest-node "
             "probe selection and the band-edge mode contribute to this sensitivity. "
-            "Further amplitude refinement and mode-count studies remain open."
+            "Further amplitude refinement remains open; the fixed-mesh mode-count study follows."
         )
     )
     story.append(
@@ -317,7 +330,98 @@ def build(run, verification, output):
     )
     story.append(PageBreak())
 
-    heading("04 / DEMONSTRATION & LIMITS", "Reproduce, inspect, and extend")
+    heading("04 / MODAL TRUNCATION", "Retain enough of the eigenbasis")
+    story.append(
+        p(
+            "One 50-mode solve is evaluated using prefixes of 10, 20, 30, 40 and 50 modes. "
+            "The mesh, supports, damping, excitation and probe node remain unchanged. "
+            "This isolates truncation error from remeshing effects."
+        )
+    )
+    story.append(
+        table(
+            [["Modes", "Z mass / solver", "Z mass / CAD", "Probe g RMS"]]
+            + [
+                [
+                    str(row["modes"]),
+                    f"{100 * row['z_mass_fraction_of_solver_total']:.2f}%",
+                    f"{100 * row['z_mass_fraction_of_cad']:.2f}%",
+                    f"{row['probe_acceleration_grms']:.4f}",
+                ]
+                for row in modes["rows"]
+            ],
+            [30 * mm, 48 * mm, 48 * mm, 48 * mm],
+        )
+    )
+    story.append(Spacer(1, 12))
+    story.append(image(studies / "mode_count/mode_count.png"))
+    last = modes["rows"][-1]
+    story.append(
+        p(
+            f"At 50 modes, available translational mass fractions are "
+            f"X {100 * last['x_mass_fraction_of_solver_total']:.2f}%, "
+            f"Y {100 * last['y_mass_fraction_of_solver_total']:.2f}% and "
+            f"Z {100 * last['z_mass_fraction_of_solver_total']:.2f}%. "
+            f"The selected Z-axis probe acceleration changes by "
+            f"{last['acceleration_change_from_previous_percent']:.4f}% from 40 to 50 modes. "
+            "The X and Y bases need further study for those excitation directions."
+        )
+    )
+    story.append(
+        p(
+            "The solver denominator is its total effective mass with constrained DOFs "
+            "excluded; full CAD mass is also reported. A stable response under modal "
+            "truncation does not imply mesh-converged amplitude or measured damping.",
+            "SmallVQ",
+        )
+    )
+    story.append(PageBreak())
+
+    heading("05 / DESIGN COMPARISON", "Stiffness gain has a mass cost")
+    story.append(
+        p(
+            "The outer envelope, material, nominal 9 mm mesh size, 50-mode basis, damping "
+            "and input PSD are held fixed. Three changes are compared with the baseline: "
+            "4 mm walls/base, a 3 x 8 mm longitudinal rib and mounts moved 22 mm inboard."
+        )
+    )
+    story.append(
+        table(
+            [["Variant", "First Hz", "Frequency gain", "Mass gain"]]
+            + [
+                [
+                    row["label"],
+                    f"{row['first_frequency_hz']:.2f}",
+                    f"{row['frequency_change_from_baseline_percent']:+.2f}%",
+                    f"{row['mass_change_from_baseline_percent']:+.2f}%",
+                ]
+                for row in designs["rows"]
+            ],
+            [75 * mm, 30 * mm, 35 * mm, 34 * mm],
+        )
+    )
+    story.append(Spacer(1, 8))
+    story.append(image(studies / "designs/design_comparison.png"))
+    story.append(
+        p(
+            "For a fixed mounting interface, the rib is the more mass-efficient candidate "
+            "among the tested stiffness changes. Relocating mounts adds no material but "
+            "requires changing the installation interface. This is a controlled comparison, "
+            "not a global optimum or an assembled-enclosure validation."
+        )
+    )
+    story.append(
+        p(
+            f"The rib is checked again at 6 mm target mesh size: "
+            f"{refined['ribbed_first_hz']:.3f} Hz versus {refined['baseline_first_hz']:.3f} Hz "
+            f"for the refined baseline, preserving a {refined['ribbed_gain_percent']:.2f}% gain. "
+            "Variant mode identity and local response amplitude require further investigation.",
+            "SmallVQ",
+        )
+    )
+    story.append(PageBreak())
+
+    heading("06 / REPRODUCTION & LIMITS", "Run the analysis and inspect the evidence")
     story.append(
         p(
             "Install the dependencies on Ubuntu or Ubuntu under WSL, activate a Python "
@@ -357,6 +461,16 @@ def build(run, verification, output):
             "standards qualification are included. The demonstration PSD is educational. "
             "The next engineering steps are fixture-aware frequency correlation, damping "
             "estimation, amplitude/mode-count convergence and a coupled PCB model."
+        )
+    )
+    story.append(
+        p(
+            "<b>Public reference spectrum.</b> An optional MIL-STD-810H Change 1 "
+            "Method 514.8 Category 24 profile follows Figure 514.8E-1 (page 514.8E-3): "
+            "0.04 g^2/Hz from 20 to 1000 Hz, then an f^-2 rolloff to 0.01 at 2000 Hz. "
+            "The integral is 7.6942 g RMS, rounded to 7.7 in the figure; duration is one "
+            "hour per axis. Annex E excludes this minimum-integrity profile from qualification use. "
+            "The recorded numerical application is Z-axis only; no physical exposure is claimed."
         )
     )
     story.append(p("Selected references", "HeadingVQ"))

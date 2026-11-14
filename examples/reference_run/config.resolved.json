@@ -1,5 +1,5 @@
 {
-  "name": "Aluminium avionics tray \u2014 educational demonstration",
+  "name": "Aluminium tray - baseline vibration screen",
   "geometry": {
     "type": "tray",
     "length_m": 0.16,
@@ -43,7 +43,7 @@
     ]
   },
   "analysis": {
-    "modes": 10,
+    "modes": 50,
     "damping_ratio": 0.025,
     "axis": "z",
     "probe_xyz_m": [

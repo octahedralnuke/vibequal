@@ -1,0 +1,117 @@
+{
+  "study": "geometry_comparison",
+  "rows": [
+    {
+      "variant": "baseline",
+      "label": "Baseline: 3 mm tray",
+      "mass_kg": 0.2813549480064351,
+      "nodes": 10473,
+      "elements": 5346,
+      "modes": 50,
+      "first_frequency_hz": 1212.265,
+      "frequency_change_from_baseline_percent": 0.0,
+      "mass_change_from_baseline_percent": 0.0,
+      "x_mass_fraction_of_solver_total": 0.8376007055419614,
+      "y_mass_fraction_of_solver_total": 0.7789432887579542,
+      "z_mass_fraction_of_solver_total": 0.9026210281710303,
+      "x_mass_fraction_of_cad": 0.8348405627762685,
+      "y_mass_fraction_of_cad": 0.776376439578954,
+      "z_mass_fraction_of_cad": 0.8996466241565821,
+      "probe_acceleration_grms": 19.377652914735314,
+      "probe_snap_distance_m": 0.0017429867452294825
+    },
+    {
+      "variant": "thicker",
+      "label": "4 mm walls and base",
+      "mass_kg": 0.3680983306752464,
+      "nodes": 10341,
+      "elements": 5337,
+      "modes": 50,
+      "first_frequency_hz": 1613.96,
+      "frequency_change_from_baseline_percent": 33.13590675306142,
+      "mass_change_from_baseline_percent": 30.830587229206042,
+      "x_mass_fraction_of_solver_total": 0.8929544082077502,
+      "y_mass_fraction_of_solver_total": 0.8858523300838933,
+      "z_mass_fraction_of_solver_total": 0.9134545679999684,
+      "x_mass_fraction_of_cad": 0.8910158303883771,
+      "y_mass_fraction_of_cad": 0.8839291706677396,
+      "z_mass_fraction_of_cad": 0.9114714849351969,
+      "probe_acceleration_grms": 16.300982797757516,
+      "probe_snap_distance_m": 0.001980885519464661
+    },
+    {
+      "variant": "ribbed",
+      "label": "3 mm tray + longitudinal rib",
+      "mass_kg": 0.29133414800643487,
+      "nodes": 11377,
+      "elements": 5862,
+      "modes": 50,
+      "first_frequency_hz": 1324.734,
+      "frequency_change_from_baseline_percent": 9.277591945655427,
+      "mass_change_from_baseline_percent": 3.5468365033948235,
+      "x_mass_fraction_of_solver_total": 0.8716689394778326,
+      "y_mass_fraction_of_solver_total": 0.7867791685361732,
+      "z_mass_fraction_of_solver_total": 0.9143022849249958,
+      "x_mass_fraction_of_cad": 0.8689777997839467,
+      "y_mass_fraction_of_cad": 0.7843501125553113,
+      "z_mass_fraction_of_cad": 0.9114795215342912,
+      "probe_acceleration_grms": 17.13785554269257,
+      "probe_snap_distance_m": 2.7755575615628914e-17
+    },
+    {
+      "variant": "mounts",
+      "label": "3 mm tray: mounts 22 mm inboard",
+      "mass_kg": 0.2813549480064347,
+      "nodes": 13837,
+      "elements": 7056,
+      "modes": 50,
+      "first_frequency_hz": 1379.923,
+      "frequency_change_from_baseline_percent": 13.830144399120648,
+      "mass_change_from_baseline_percent": -1.5543122344752192e-13,
+      "x_mass_fraction_of_solver_total": 0.7727348843804211,
+      "y_mass_fraction_of_solver_total": 0.8479266859643051,
+      "z_mass_fraction_of_solver_total": 0.9418706149320666,
+      "x_mass_fraction_of_cad": 0.7709616270016623,
+      "y_mass_fraction_of_cad": 0.8459808798632406,
+      "z_mass_fraction_of_cad": 0.9397092280819004,
+      "probe_acceleration_grms": 12.817283104264389,
+      "probe_snap_distance_m": 0.0016418965928062417
+    }
+  ],
+  "profile": {
+    "name": "Educational broadband PSD \u2014 NOT a DO-160 or MIL-STD-810 qualification profile",
+    "source": "User-defined illustrative breakpoints; replace with a documented project requirement.",
+    "duration_s": 60,
+    "breakpoints_hz_g2_per_hz": [
+      [
+        20,
+        0.005
+      ],
+      [
+        80,
+        0.04
+      ],
+      [
+        350,
+        0.04
+      ],
+      [
+        2000,
+        0.007
+      ]
+    ]
+  },
+  "controlled": {
+    "mesh_target_m": 0.009,
+    "modes": 50,
+    "damping_ratio": 0.025,
+    "material": {
+      "name": "Aluminium 6061 nominal",
+      "youngs_modulus_pa": 68900000000,
+      "poisson_ratio": 0.33,
+      "density_kg_m3": 2700
+    },
+    "axis": "z"
+  },
+  "interpretation": "First-frequency and mass tradeoff for one specified tray. Variant modes are sorted by frequency, not matched by mode-shape identity. All variants retain idealized clamps and omit a lid and payload. Probe responses are exploratory because meshes and nearest probe nodes differ; amplitudes are not used to rank designs. Frequency increase alone is not qualification."
+}
