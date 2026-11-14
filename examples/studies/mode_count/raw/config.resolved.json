@@ -1,0 +1,95 @@
+{
+  "name": "Aluminium avionics tray \u2014 educational demonstration",
+  "geometry": {
+    "type": "tray",
+    "length_m": 0.16,
+    "width_m": 0.1,
+    "height_m": 0.04,
+    "thickness_m": 0.003,
+    "hole_radius_m": 0.0022,
+    "mount_inset_m": 0.012
+  },
+  "material": {
+    "name": "Aluminium 6061 nominal",
+    "youngs_modulus_pa": 68900000000,
+    "poisson_ratio": 0.33,
+    "density_kg_m3": 2700
+  },
+  "mesh": {
+    "size_m": 0.009,
+    "order": 2
+  },
+  "supports": {
+    "type": "mount_patches",
+    "radius_m": 0.007,
+    "plane_z_m": 0.0,
+    "centres_xy_m": [
+      [
+        0.012,
+        0.012
+      ],
+      [
+        0.148,
+        0.012
+      ],
+      [
+        0.012,
+        0.088
+      ],
+      [
+        0.148,
+        0.088
+      ]
+    ]
+  },
+  "analysis": {
+    "modes": 50,
+    "damping_ratio": 0.025,
+    "axis": "z",
+    "probe_xyz_m": [
+      0.08,
+      0.05,
+      0.003
+    ],
+    "solver_timeout_s": 300
+  },
+  "profile": {
+    "name": "Educational broadband PSD \u2014 NOT a DO-160 or MIL-STD-810 qualification profile",
+    "source": "User-defined illustrative breakpoints; replace with a documented project requirement.",
+    "duration_s": 60,
+    "breakpoints_hz_g2_per_hz": [
+      [
+        20,
+        0.005
+      ],
+      [
+        80,
+        0.04
+      ],
+      [
+        350,
+        0.04
+      ],
+      [
+        2000,
+        0.007
+      ]
+    ]
+  },
+  "pcb": {
+    "enabled": true,
+    "model": "independent_simply_supported_isotropic_plate",
+    "length_m": 0.12,
+    "width_m": 0.075,
+    "thickness_m": 0.0016,
+    "youngs_modulus_pa": 20000000000,
+    "poisson_ratio": 0.15,
+    "density_kg_m3": 1850,
+    "smeared_component_mass_kg": 0.025,
+    "damping_ratio": 0.025,
+    "component_length_m": 0.02,
+    "package_constant": 1.0,
+    "position_factor": 1.0,
+    "board_edge_parallel_to_component_m": 0.12
+  }
+}

@@ -33,13 +33,13 @@ Recorded data: `examples/verification/validation.json`.
 
 | Target mesh size | Nodes | Elements | First frequency | Probe acceleration |
 |---:|---:|---:|---:|---:|
-| 12 mm | 6,870 | 3,525 | 1235.798 Hz | 17.3154 g RMS |
-| 9 mm | 10,473 | 5,346 | 1212.265 Hz | 19.5421 g RMS |
-| 6 mm | 19,214 | 9,757 | 1201.373 Hz | 21.4918 g RMS |
+| 12 mm | 6,870 | 3,525 | 1235.798 Hz | 17.1719 g RMS |
+| 9 mm | 10,473 | 5,346 | 1212.265 Hz | 19.3777 g RMS |
+| 6 mm | 19,214 | 9,757 | 1201.373 Hz | 21.3585 g RMS |
 
-From 9 to 6 mm, the first frequency changes by 0.91% relative to the refined result. The maximum change among the first three sorted frequencies is 2.40%. Probe acceleration increases by 9.98% relative to the 9 mm result.
+From 9 to 6 mm, the first frequency changes by 0.91% relative to the refined result. The maximum change among the first three sorted frequencies is 2.40%. Probe acceleration increases by 10.22% relative to the 9 mm result.
 
-This supports approximate first-frequency stability but **does not demonstrate converged response amplitude**. Probe snapping, support-area discretization and the third resonance approaching the PSD upper cutoff contribute to sensitivity. For engineering use, refine further, compare fixed/probe coordinates, inspect mode identity and perform a mode-count/damping study. The supplied code permits increasing mode count through the configuration; no complete mode-count convergence claim is made.
+All three mesh runs use 50 modes. This supports approximate first-frequency stability but **does not demonstrate converged response amplitude**. Probe snapping, support-area discretization and the third resonance approaching the PSD upper cutoff contribute to sensitivity. For engineering use, refine further, compare fixed/probe coordinates, inspect mode identity and perform a mode-count/damping study. A separate fixed-mesh 10-to-50-mode study captures 90.26% of the solver's available Z mass at 50 modes; probe acceleration changes by 0.0257% from 40 to 50 modes. This is modal-truncation evidence, not amplitude convergence under mesh refinement. X/Y mass capture is 83.76% / 77.89%; those axes need further study. See STUDIES.md.
 
 Sorted mode comparison is not modal assurance criterion (MAC) tracking; modes can swap order. Stress convergence is outside the current implementation.
 
@@ -51,7 +51,7 @@ Recorded data: `examples/verification/convergence.json`, `.csv` and `.png`.
 python -m pytest -m integration -q
 ```
 
-These execute the beam benchmark, generated tray analysis, synthetic tap workflow, report generation, hash manifest and STEP export/reimport. The STEP test requires the first three frequencies to agree within 2.5%, accounting for remeshing.
+These execute the beam benchmark, a generated tray using the cited Category 24 spectrum, synthetic tap processing, report generation, the hash manifest and STEP export/reimport. Additional mathematical tests check the spectrum integral and solver-total mass denominator. The STEP test requires the first three frequencies to agree within 2.5%, accounting for remeshing.
 
 GitHub Actions includes unit checks on Linux/Windows and a Linux CalculiX integration job. CI is configured, but a remote workflow run is not claimed until it has actually executed on GitHub.
 

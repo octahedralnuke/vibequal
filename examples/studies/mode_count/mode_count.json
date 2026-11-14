@@ -1,0 +1,110 @@
+{
+  "study": "modal_truncation",
+  "rows": [
+    {
+      "modes": 10,
+      "highest_frequency_hz": 4201.895,
+      "x_mass_fraction_of_solver_total": 0.12865603577209536,
+      "y_mass_fraction_of_solver_total": 0.2209831398419746,
+      "z_mass_fraction_of_solver_total": 0.26322352873195887,
+      "x_mass_fraction_of_cad": 0.1282320759735308,
+      "y_mass_fraction_of_cad": 0.22025493485033687,
+      "z_mass_fraction_of_cad": 0.26235612912999745,
+      "probe_acceleration_grms": 19.542135692191284,
+      "probe_relative_3sigma_m": 8.270208468475478e-06,
+      "acceleration_change_from_previous_percent": null
+    },
+    {
+      "modes": 20,
+      "highest_frequency_hz": 6798.582,
+      "x_mass_fraction_of_solver_total": 0.1305433617456971,
+      "y_mass_fraction_of_solver_total": 0.2656558133692801,
+      "z_mass_fraction_of_solver_total": 0.6231945612939375,
+      "x_mass_fraction_of_cad": 0.13011318264824936,
+      "y_mass_fraction_of_cad": 0.26478039866799824,
+      "z_mass_fraction_of_cad": 0.621140950368596,
+      "probe_acceleration_grms": 19.345488029360027,
+      "probe_relative_3sigma_m": 8.15794164353146e-06,
+      "acceleration_change_from_previous_percent": -1.0062751887954358
+    },
+    {
+      "modes": 30,
+      "highest_frequency_hz": 9228.46,
+      "x_mass_fraction_of_solver_total": 0.40225569716501003,
+      "y_mass_fraction_of_solver_total": 0.6258296664544593,
+      "z_mass_fraction_of_solver_total": 0.8438220397140513,
+      "x_mass_fraction_of_cad": 0.4009301453296992,
+      "y_mass_fraction_of_cad": 0.6237673720760147,
+      "z_mass_fraction_of_cad": 0.84104139580695,
+      "probe_acceleration_grms": 19.372689878100054,
+      "probe_relative_3sigma_m": 8.174339447096364e-06,
+      "acceleration_change_from_previous_percent": 0.14061081684133558
+    },
+    {
+      "modes": 40,
+      "highest_frequency_hz": 11303.39,
+      "x_mass_fraction_of_solver_total": 0.7997926871317681,
+      "y_mass_fraction_of_solver_total": 0.7670615625425076,
+      "z_mass_fraction_of_solver_total": 0.8452001607620216,
+      "x_mass_fraction_of_cad": 0.7971571330009815,
+      "y_mass_fraction_of_cad": 0.7645338671756288,
+      "z_mass_fraction_of_cad": 0.8424149755373025,
+      "probe_acceleration_grms": 19.372668091515145,
+      "probe_relative_3sigma_m": 8.174326072969722e-06,
+      "acceleration_change_from_previous_percent": -0.00011246029872902241
+    },
+    {
+      "modes": 50,
+      "highest_frequency_hz": 13641.72,
+      "x_mass_fraction_of_solver_total": 0.8376007055419614,
+      "y_mass_fraction_of_solver_total": 0.7789432887579542,
+      "z_mass_fraction_of_solver_total": 0.9026210281710303,
+      "x_mass_fraction_of_cad": 0.8348405627762685,
+      "y_mass_fraction_of_cad": 0.776376439578954,
+      "z_mass_fraction_of_cad": 0.8996466241565821,
+      "probe_acceleration_grms": 19.377652914735314,
+      "probe_relative_3sigma_m": 8.177396315286213e-06,
+      "acceleration_change_from_previous_percent": 0.025731216766944343
+    }
+  ],
+  "axis": "z",
+  "profile": {
+    "name": "Educational broadband PSD \u2014 NOT a DO-160 or MIL-STD-810 qualification profile",
+    "source": "User-defined illustrative breakpoints; replace with a documented project requirement.",
+    "duration_s": 60,
+    "breakpoints_hz_g2_per_hz": [
+      [
+        20,
+        0.005
+      ],
+      [
+        80,
+        0.04
+      ],
+      [
+        350,
+        0.04
+      ],
+      [
+        2000,
+        0.007
+      ]
+    ]
+  },
+  "cad_mass_kg": 0.2813549480064351,
+  "solver_total_effective_mass_xyz_kg": [
+    0.2804278,
+    0.2804278,
+    0.2804278
+  ],
+  "nodes": 10473,
+  "elements": 5346,
+  "solver_version": "2.23",
+  "probe_node": 7033,
+  "probe_xyz_m": [
+    0.08087485333831532,
+    0.04984955256571077,
+    0.0015
+  ],
+  "interpretation": "Prefixes of the same solved eigenbasis. This isolates modal truncation from remeshing, support changes and probe snapping. Translational mass fractions use both the CalculiX total effective mass of free DOFs and full CAD mass. No residual/missing-mass correction is applied."
+}

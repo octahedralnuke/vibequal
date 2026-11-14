@@ -30,10 +30,14 @@ The animated eigenvectors are scaled for display. Their plotted amplitudes are n
 ```bash
 vibequal validate --out runs/beam
 vibequal converge examples/enclosure.json --sizes .012 .009 .006 --out runs/mesh-study
+vibequal mode-study examples/enclosure.json --counts 10 20 30 40 50 --out runs/mode-count
+vibequal design-study examples/design_variants.json --out runs/designs
 python -m pytest -q
 ```
 
 The beam benchmark checks a known bending frequency. Mesh refinement tests discretization sensitivity. Neither establishes the stiffness or damping of a real mounted enclosure; that requires physical measurements.
+
+The modal study holds one eigenbasis fixed and varies the retained mode count. The design study keeps material, envelope, mesh target and excitation controlled while changing the tray thickness, rib or mounting pattern. See [STUDIES.md](STUDIES.md) for the recorded tradeoffs and limitations.
 
 ## Measured tap data
 
