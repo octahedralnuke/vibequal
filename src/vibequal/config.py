@@ -35,6 +35,14 @@ def validate_config(config):
         inset = positive(g["mount_inset_m"], "geometry.mount_inset_m")
         if inset - r <= t or 2 * (inset + r) >= min(g["length_m"], g["width_m"]):
             raise ValueError("Mounting holes must lie inside the base, clear of the walls")
+        if g.get("rib"):
+            rib = g["rib"]
+            positive(rib["width_m"], "geometry.rib.width_m")
+            positive(rib["height_m"], "geometry.rib.height_m")
+            if rib["width_m"] >= g["width_m"] - 2 * t or rib["height_m"] >= g["height_m"] - t:
+                raise ValueError("The longitudinal rib must fit inside the tray cavity")
+            if abs(inset - g["width_m"] / 2) <= rib["width_m"] / 2 + r:
+                raise ValueError("The longitudinal rib intersects a mounting hole")
     for k in ["youngs_modulus_pa", "density_kg_m3"]:
         positive(mat[k], f"material.{k}")
     if not -1 < mat["poisson_ratio"] < 0.5:

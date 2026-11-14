@@ -49,8 +49,12 @@ def prepare_output(path):
     return out
 
 
-def run(config_path, output, ccx=None, with_synthetic_tap=False):
+def run(config_path, output, ccx=None, with_synthetic_tap=False, profile_path=None):
     config = load_config(config_path)
+    if profile_path is not None:
+        profile = json.loads(Path(profile_path).read_text(encoding="utf-8"))
+        PSDProfile.from_config(profile)
+        config["profile"] = profile
     executable = find_ccx(ccx)  # Fail before writing outputs if the external solver is absent.
     out = prepare_output(output)
     write_json(out / "config.resolved.json", config)
@@ -65,15 +69,24 @@ def run(config_path, output, ccx=None, with_synthetic_tap=False):
     profile = PSDProfile.from_config(config["profile"])
     warnings = [
         "Simulation only. No physical qualification or compliance is demonstrated.",
-        "Input PSD is illustrative unless replaced with a documented requirement.",
         "Linear elastic model; mounting patches idealize perfectly clamped connections.",
         "Probe response uses a truncated, coherent modal sum for one base-input axis.",
     ]
-    fraction = response["effective_mass_fraction_of_cad"]
+    if config["profile"].get("standard_reference"):
+        warnings.append(
+            "A published reference spectrum is used for numerical screening. "
+            "Applicability, tailoring and physical test execution are not established."
+        )
+        warnings.append(config["profile"]["standard_reference"]["limitation"])
+    else:
+        warnings.append("Input PSD is illustrative unless replaced with a documented requirement.")
+    fraction = response.get(
+        "effective_mass_fraction_of_solver_total", response["effective_mass_fraction_of_cad"]
+    )
     if fraction < 0.9:
         warnings.append(
-            f"Extracted directional modal mass is {100 * fraction:.1f}% of CAD mass. "
-            "Constrained mass is included in the denominator. Increase mode count "
+            f"Extracted directional modal mass is {100 * fraction:.1f}% of the solver's "
+            "total effective mass in the excitation direction. Increase mode count "
             "and check response convergence before relying on amplitudes."
         )
     if modal["frequencies_hz"][-1] < profile.frequency[-1]:

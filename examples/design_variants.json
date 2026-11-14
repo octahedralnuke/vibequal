@@ -1,0 +1,10 @@
+{
+  "base_config": "enclosure.json",
+  "modes": 50,
+  "variants": [
+    {"id": "baseline", "label": "Baseline: 3 mm tray"},
+    {"id": "thicker", "label": "4 mm walls and base", "geometry": {"thickness_m": 0.004}},
+    {"id": "ribbed", "label": "3 mm tray + longitudinal rib", "geometry": {"rib": {"width_m": 0.003, "height_m": 0.008}}},
+    {"id": "mounts", "label": "3 mm tray: mounts 22 mm inboard", "geometry": {"mount_inset_m": 0.022}}
+  ]
+}

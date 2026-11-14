@@ -95,7 +95,18 @@ def build_mesh(config, directory):
                     for x in (inset, length - inset)
                     for y in (inset, width - inset)
                 ]
-                occ.cut(body, [(3, tag) for tag in holes])
+                body, _ = occ.cut(body, [(3, tag) for tag in holes])
+                if g.get("rib"):
+                    rib = g["rib"]
+                    tag = occ.addBox(
+                        t,
+                        (width - rib["width_m"]) / 2,
+                        t,
+                        length - 2 * t,
+                        rib["width_m"],
+                        rib["height_m"],
+                    )
+                    occ.fuse(body, [(3, tag)])
         occ.synchronize()
         volumes = gmsh.model.getEntities(3)
         if len(volumes) != 1:

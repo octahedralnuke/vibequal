@@ -35,7 +35,10 @@ def test_analytical_beam_benchmark(tmp_path):
 def test_end_to_end_generated_and_imported_step(tmp_path):
     config_path = Path(__file__).parents[1] / "examples" / "enclosure.json"
     generated = tmp_path / "generated"
-    result = run(config_path, generated, with_synthetic_tap=True)
+    profile_path = Path(__file__).parents[1] / "examples/profiles/mil_std_810h_cat24.json"
+    result = run(config_path, generated, with_synthetic_tap=True, profile_path=profile_path)
+    assert result["response"]["input_grms"] == pytest.approx(np.sqrt(59.2))
+    assert result["profile"]["standard_reference"]["category"] == 24
     import gmsh
 
     gmsh.initialize()
