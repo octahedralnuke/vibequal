@@ -12,6 +12,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
+from . import __version__
+
 
 def style():
     plt.rcParams.update(
@@ -110,7 +112,7 @@ def create_report(out, summary, mesh, modal, spectra, tap_arrays=None):
         label="Excitation band",
     )
     ax.set(xlabel="Mode number", ylabel="Natural frequency (Hz)")
-    ax.set_xticks(range(1, len(r["modes"]) + 1))
+    ax.set_xticks(range(1, len(r["modes"]) + 1, 1 if len(r["modes"]) <= 15 else 5))
     ax.legend(frameon=False)
     save(fig, figures / "frequencies.png")
 
@@ -165,6 +167,7 @@ def create_report(out, summary, mesh, modal, spectra, tap_arrays=None):
         "probe": remap.get(indices[r["probe_node"]]),
     }
     replacements = {
+        "__VERSION__": __version__,
         "__NAME__": html.escape(summary["name"]),
         "__DATE__": html.escape(summary["created_utc"]),
         "__F1__": f"{r['modes'][0]['frequency_hz']:.1f}",
@@ -179,6 +182,7 @@ def create_report(out, summary, mesh, modal, spectra, tap_arrays=None):
         "__DAMPING__": f"{100 * r['damping_ratio']:.2f}",
         "__DISPLACEMENT__": f"{r['relative_displacement_3sigma_m'] * 1000:.4f}",
         "__COVERAGE__": f"{100 * r['effective_mass_fraction_of_cad']:.1f}",
+        "__COVERAGE_FREE__": f"{100 * r.get('effective_mass_fraction_of_solver_total', r['effective_mass_fraction_of_cad']):.2f}",
         "__PROBE__": f"Node {r['probe_node']} · "
         + ", ".join(f"{v * 1000:.2f}" for v in r["probe_xyz_m"])
         + " mm",

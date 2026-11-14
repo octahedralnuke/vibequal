@@ -25,11 +25,21 @@ def parser():
             cmd.add_argument("--synthetic-tap", action="store_true")
         cmd.add_argument("--out", type=Path, default=Path("runs/demo"))
         cmd.add_argument("--ccx", help="CalculiX executable path, or use CCX_BIN")
+        cmd.add_argument("--profile", type=Path, help="Override the input PSD with a profile JSON")
     convergence = commands.add_parser("converge", help="Run a mesh refinement study")
     convergence.add_argument("config", type=Path)
     convergence.add_argument("--out", type=Path, default=Path("runs/convergence"))
     convergence.add_argument("--sizes", type=float, nargs="+", default=[0.012, 0.009, 0.006])
     convergence.add_argument("--ccx")
+    modal = commands.add_parser("mode-study", help="Compare modal truncation on one fixed mesh")
+    modal.add_argument("config", type=Path)
+    modal.add_argument("--counts", type=int, nargs="+", default=[10, 20, 30, 40, 50])
+    modal.add_argument("--out", type=Path, default=Path("runs/mode-study"))
+    modal.add_argument("--ccx")
+    designs = commands.add_parser("design-study", help="Compare controlled tray design variants")
+    designs.add_argument("specification", type=Path)
+    designs.add_argument("--out", type=Path, default=Path("runs/design-study"))
+    designs.add_argument("--ccx")
     benchmark = commands.add_parser("validate", help="Verify against an analytical cantilever")
     benchmark.add_argument("--out", type=Path, default=Path("runs/validation"))
     benchmark.add_argument("--ccx")
@@ -82,6 +92,7 @@ def main(argv=None):
                 args.out,
                 args.ccx,
                 with_synthetic_tap=args.command == "demo" or args.synthetic_tap,
+                profile_path=args.profile,
             )
         elif args.command == "converge":
             from .pipeline import convergence
@@ -94,6 +105,16 @@ def main(argv=None):
             result = validate_beam(args.out, args.ccx)
             print(json.dumps(result, indent=2))
             return 0 if result["passed"] else 1
+        elif args.command == "mode-study":
+            from .studies import mode_study
+
+            result = mode_study(args.config, args.out, args.counts, args.ccx)
+            print(json.dumps(result["rows"], indent=2))
+        elif args.command == "design-study":
+            from .studies import design_study
+
+            result = design_study(args.specification, args.out, args.ccx)
+            print(json.dumps(result["rows"], indent=2))
         elif args.command == "tap":
             from .pipeline import prepare_output, write_json
             from .report import create_tap_plot

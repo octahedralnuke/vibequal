@@ -38,7 +38,7 @@
     ]
   },
   "analysis": {
-    "modes": 10,
+    "modes": 50,
     "damping_ratio": 0.025,
     "axis": "z",
     "probe_xyz_m": [

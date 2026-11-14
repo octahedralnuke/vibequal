@@ -196,6 +196,12 @@ def modal_response(mesh, modal, config):
         "effective_mass_fraction_of_cad": float(modal["effective_mass_kg"][:, axis].sum() / mass),
         "modes": rows,
     }
+    if "total_effective_mass" in modal:
+        total = float(modal["total_effective_mass"][axis])
+        result["total_effective_mass_kg"] = total
+        result["effective_mass_fraction_of_solver_total"] = float(
+            modal["effective_mass_kg"][:, axis].sum() / total
+        )
     return result, {
         "frequency_hz": grid,
         "input_psd_g2_hz": profile.at(grid),

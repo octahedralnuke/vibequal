@@ -1,0 +1,36 @@
+{
+  "name": "MIL-STD-810H Change 1: Method 514.8 Category 24 general minimum integrity",
+  "source": "MIL-STD-810H w/Change 1 (18 May 2022), Method 514.8, Annex E, Figure 514.8E-1, printed page 514.8E-3 (PDF page 457).",
+  "duration_s": 3600,
+  "breakpoints_hz_g2_per_hz": [
+    [
+      20,
+      0.04
+    ],
+    [
+      1000,
+      0.04
+    ],
+    [
+      2000,
+      0.01
+    ]
+  ],
+  "standard_reference": {
+    "standard": "MIL-STD-810H",
+    "revision": "H with Change 1, 18 May 2022",
+    "method": "514.8",
+    "annex": "E",
+    "category": 24,
+    "figure": "514.8E-1",
+    "printed_page": "514.8E-3",
+    "pdf_page_1based": 457,
+    "official_record_url": "https://quicksearch.dla.mil/qsDocDetails.aspx?ident_number=35978",
+    "document_mirror_url": "https://cvgstrategy.com/wp-content/uploads/2023/04/MIL-STD-810H-change-1.pdf",
+    "document_sha256": "ebca105222838f684768d565074bf5170b83f027d7e7b0603c33d956ed5c31dd",
+    "figure_nominal_grms": 7.7,
+    "duration_per_axis_s": 3600,
+    "rolloff_note": "The nominal -6 dB/octave segment is represented by a fourfold PSD decrease per octave (f^-2), from 0.04 at 1000 Hz to 0.01 at 2000 Hz. The 2000 Hz density is reconstructed from the nominal slope.",
+    "limitation": "Annex E excludes minimum-integrity testing from qualification use; this profile is not an aircraft-specific operational environment."
+  }
+}

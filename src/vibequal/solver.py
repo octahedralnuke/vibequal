@@ -53,6 +53,7 @@ def parse_dat(path, node_ids, requested_modes):
     """Read real .dat tables. Missing/incomplete results are errors, never demo values."""
     lines = Path(path).read_text(encoding="utf-8", errors="replace").splitlines()
     frequencies, participation, effective_mass = [], [], []
+    total_effective_mass = None
     displacement_blocks = []
     section = None
     current = None
@@ -68,7 +69,10 @@ def parse_dat(path, node_ids, requested_modes):
         if "EFFECTIVEMODALMASS" in compact:
             section = "mass"
             continue
-        if "TOTALEFFECTIVE" in compact or "TOTALMODAL" in compact:
+        if "TOTALEFFECTIVEMASS" in compact:
+            section = "total_mass"
+            continue
+        if "TOTALMODAL" in compact or "FRACTIONOFTOTALS" in compact:
             section = None
         if "DISPLACEMENTS" in upper and "SET" in upper:
             section = "displacements"
@@ -76,6 +80,13 @@ def parse_dat(path, node_ids, requested_modes):
             displacement_blocks.append(current)
             continue
         fields = line.split()
+        if section == "total_mass" and len(fields) == 6:
+            try:
+                total_effective_mass = np.array([_number(x) for x in fields])
+                section = None
+            except ValueError:
+                pass
+            continue
         if not fields or not fields[0].isdigit():
             continue
         try:
@@ -108,10 +119,15 @@ def parse_dat(path, node_ids, requested_modes):
     frequencies = np.array(frequencies)
     if not np.all(np.isfinite(frequencies)) or np.any(frequencies <= 1e-3):
         raise RuntimeError("Nonpositive/rigid-body frequency detected; inspect supports and mesh")
+    if total_effective_mass is None or not np.all(np.isfinite(total_effective_mass)):
+        raise RuntimeError("CalculiX total effective mass table is missing or invalid")
+    if np.any(total_effective_mass[:3] <= 0) or not np.all(np.isfinite(shapes)):
+        raise RuntimeError("Invalid translational mass or mode-shape output")
     return {
         "frequencies_hz": frequencies,
         "participation": np.array(participation),
         "effective_mass_kg": np.array(effective_mass),
+        "total_effective_mass": total_effective_mass,
         "shapes": shapes,
     }
 

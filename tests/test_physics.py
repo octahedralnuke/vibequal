@@ -8,6 +8,22 @@ from vibequal.pcb import steinberg_allowable_m
 from vibequal.vibration import PSDProfile, miles_grms, modal_response, sdof_response
 
 
+def test_mil810h_category24_integral_and_reference():
+    import json
+    from pathlib import Path
+
+    data = json.loads(
+        (Path(__file__).parents[1] / "examples/profiles/mil_std_810h_cat24.json").read_text()
+    )
+    profile = PSDProfile.from_config(data)
+    # Plateau area .04*(1000-20) plus f^-2 tail area .04*1000^2*(1/1000-1/2000).
+    assert profile.input_grms**2 == pytest.approx(59.2)
+    assert round(profile.input_grms, 1) == 7.7
+    assert profile.at(2000) == pytest.approx(0.01)
+    assert data["duration_s"] == 3600
+    assert data["standard_reference"]["figure"] == "514.8E-1"
+
+
 def test_flat_psd_integral_and_band_limits():
     p = PSDProfile("flat", [20, 2000], [0.04, 0.04])
     assert p.input_grms == pytest.approx(np.sqrt(0.04 * 1980))
