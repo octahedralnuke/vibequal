@@ -37,7 +37,7 @@ One 50-mode eigenbasis is evaluated using smaller prefixes, keeping the mesh and
 
 At 50 modes the X/Y/Z fractions are 83.76% / 77.89% / 90.26% of the solver's total effective mass. The Z fraction is 89.96% when normalized by full CAD mass, including constrained material. The default response is Z-axis only; the X and Y directions need further study.
 
-Probe acceleration changes by **0.0257% from 40 to 50 modes** on the fixed mesh. Mesh refinement still changes amplitude by about **10.22% from 9 to 6 mm**, so the amplitude is not fully converged. Mode-count stability does not resolve mounting, mesh or damping uncertainty.
+Probe acceleration changes by **0.0257% from 40 to 50 modes** on the fixed mesh. A five-mesh study converges the response to **21.71 g RMS** (0.21% change between the two finest meshes). The 9 mm screening mesh used for the reference run reads **10.7% low** because it places mode 3, which carries 13.5% of the Z mass, at 2004 Hz, just outside the 2000 Hz profile limit; refined meshes settle it at 1944 Hz, inside the band. Runs now flag significant modes near a profile edge in `band_edge_modes`. See [verification](docs/VALIDATION.md). Mode-count and mesh stability do not resolve mounting or damping uncertainty.
 
 ## Run an analysis
 
@@ -60,7 +60,7 @@ vibequal run examples/enclosure.json --out runs/tray
 vibequal mode-study examples/enclosure.json --counts 10 20 30 40 50 --out runs/modes
 vibequal design-study examples/design_variants.json --out runs/designs
 vibequal run examples/ribbed_refined.json --out runs/rib-refined
-vibequal converge examples/enclosure.json --sizes .012 .009 .006 --out runs/mesh-study
+vibequal converge examples/enclosure.json --sizes .012 .009 .006 .0045 .0035 --out runs/mesh-study
 vibequal validate --out runs/beam
 python -m pytest -q
 ```

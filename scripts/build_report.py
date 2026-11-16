@@ -39,6 +39,10 @@ def build(run, verification, output):
     amplitude_change = 100 * (
         refinement[-1]["probe_acceleration_grms"] / refinement[-2]["probe_acceleration_grms"] - 1
     )
+    coarse = next(row for row in refinement if abs(row["size_m"] - 0.009) < 1e-9)
+    shortfall = 100 * (
+        1 - coarse["probe_acceleration_grms"] / refinement[-1]["probe_acceleration_grms"]
+    )
     output.parent.mkdir(parents=True, exist_ok=True)
     ink, teal, muted = (colors.HexColor(x) for x in ["#172c3e", "#087d82", "#647b8c"])
     styles = getSampleStyleSheet()
@@ -292,8 +296,8 @@ def build(run, verification, output):
     story.append(Spacer(1, 10))
     story.append(
         p(
-            "<b>Enclosure mesh study.</b> The first frequency becomes more stable under "
-            "refinement. Amplitude convergence is weaker and must not be inferred from frequency convergence."
+            "<b>Enclosure mesh study.</b> Five meshes from 12 to 3.5 mm. The response "
+            "converges more slowly than the first frequency, for the reason below."
         )
     )
     story.append(
@@ -314,10 +318,12 @@ def build(run, verification, output):
     story.append(image(verification / "convergence.png", 158 * mm))
     story.append(
         p(
-            f"From 9 to 6 mm, first-frequency change is {frequency_change:.2f}% and probe "
-            f"acceleration increases by {amplitude_change:.2f}%. Support discretization, nearest-node "
-            "probe selection and the band-edge mode contribute to this sensitivity. "
-            "Further amplitude refinement remains open; the fixed-mesh mode-count study follows."
+            f"Between the two finest meshes, the first frequency changes by {frequency_change:.2f}% "
+            f"and probe acceleration by {abs(amplitude_change):.2f}%. Mode 3 carries about 13% of "
+            "the Z mass; coarse meshes place it just above the 2000 Hz profile limit, where it "
+            "receives almost no input, and refinement brings it inside the band. The 9 mm screening "
+            f"mesh used for the reference run therefore reads {shortfall:.1f}% low. Runs now flag "
+            "significant modes near a profile edge. The fixed-mesh mode-count study follows."
         )
     )
     story.append(
@@ -460,7 +466,7 @@ def build(run, verification, output):
             "coupled enclosure/PCB dynamics, solder stress, cumulative fatigue damage or "
             "standards qualification are included. The demonstration PSD is educational. "
             "The next engineering steps are fixture-aware frequency correlation, damping "
-            "estimation, amplitude/mode-count convergence and a coupled PCB model."
+            "estimation, X/Y-axis response studies and a coupled PCB model."
         )
     )
     story.append(

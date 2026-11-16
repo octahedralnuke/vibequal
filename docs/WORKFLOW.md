@@ -29,7 +29,7 @@ The animated eigenvectors are scaled for display. Their plotted amplitudes are n
 
 ```bash
 vibequal validate --out runs/beam
-vibequal converge examples/enclosure.json --sizes .012 .009 .006 --out runs/mesh-study
+vibequal converge examples/enclosure.json --sizes .012 .009 .006 .0045 .0035 --out runs/mesh-study
 vibequal mode-study examples/enclosure.json --counts 10 20 30 40 50 --out runs/mode-count
 vibequal design-study examples/design_variants.json --out runs/designs
 python -m pytest -q

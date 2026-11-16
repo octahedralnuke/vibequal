@@ -143,3 +143,49 @@ def test_bad_support_selection_fails_instead_of_free_free_solve():
             xyz,
             {"type": "mount_patches", "radius_m": 0.01, "plane_z_m": 0, "centres_xy_m": [[10, 10]]},
         )
+
+
+def single_mode_response(frequency_hz, mass_fraction, coefficient=1.0):
+    mesh = Mesh(
+        np.array([1, 2]),
+        np.array([[0, 0, 0], [0, 0, 1.0]]),
+        np.array([]),
+        np.array([]),
+        np.array([]),
+        np.array([1]),
+        1.0,
+    )
+    modes = {
+        "frequencies_hz": np.array([frequency_hz]),
+        "participation": np.array([[0, 0, 1.0]]),
+        "effective_mass_kg": np.array([[0, 0, mass_fraction]]),
+        "shapes": np.array([[[0, 0, 0], [0, 0, coefficient]]]),
+    }
+    config = {
+        "analysis": {"axis": "z", "probe_xyz_m": [0, 0, 1], "damping_ratio": 0.025},
+        "profile": {"breakpoints_hz_g2_per_hz": [[20, 0.01], [2000, 0.01]]},
+        "material": {"density_kg_m3": 1.0},
+    }
+    return modal_response(mesh, modes, config)[0]
+
+
+@pytest.mark.parametrize("frequency_hz", [1900.0, 2004.0, 2140.0])
+def test_significant_mode_near_profile_edge_is_flagged(frequency_hz):
+    # Window is 3 * zeta * fn: 142.5 Hz at 1900 Hz and 160.5 Hz at 2140 Hz.
+    result = single_mode_response(frequency_hz, 0.13)
+    assert result["modes"][0]["near_band_edge"]
+    assert [m["mode"] for m in result["band_edge_modes"]] == [1]
+    assert result["band_edge_modes"][0]["edge_hz"] == 2000
+
+
+@pytest.mark.parametrize("frequency_hz", [1000.0, 1850.0, 2200.0])
+def test_mode_clear_of_profile_edges_is_not_flagged(frequency_hz):
+    result = single_mode_response(frequency_hz, 0.13)
+    assert not result["modes"][0]["near_band_edge"]
+    assert result["band_edge_modes"] == []
+
+
+def test_insignificant_mode_near_edge_is_not_listed():
+    result = single_mode_response(2004.0, 1e-5, coefficient=1e-4)
+    assert result["modes"][0]["near_band_edge"]
+    assert result["band_edge_modes"] == []

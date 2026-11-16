@@ -40,19 +40,16 @@ def save(fig, path):
 
 def convergence_plot(rows, path):
     style()
-    fig, ax = plt.subplots(figsize=(8, 4))
-    ax.plot(
-        [r["nodes"] for r in rows],
-        [r["first_frequency_hz"] for r in rows],
-        "o-",
-        color="#127c80",
-        linewidth=2,
-    )
-    ax.set(
+    fig, axes = plt.subplots(1, 2, figsize=(11, 4), constrained_layout=True)
+    nodes = [r["nodes"] for r in rows]
+    axes[0].plot(nodes, [r["first_frequency_hz"] for r in rows], "o-", color="#127c80", lw=2)
+    axes[0].set(
         xlabel="Mesh nodes",
         ylabel="First natural frequency (Hz)",
-        title="Mesh refinement — first enclosure mode",
+        title="First enclosure mode",
     )
+    axes[1].plot(nodes, [r["probe_acceleration_grms"] for r in rows], "o-", color="#b5562b", lw=2)
+    axes[1].set(xlabel="Mesh nodes", ylabel="Probe acceleration (g RMS)", title="Probe response")
     save(fig, path)
 
 
