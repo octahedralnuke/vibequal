@@ -72,3 +72,34 @@ def test_end_to_end_generated_and_imported_step(tmp_path):
         rtol=0.025,
     )
     assert imported["physical_validation"] == "not_performed"
+
+
+def test_assembly_with_lid_and_coupled_board(tmp_path):
+    from vibequal.config import board_density
+
+    c = json.loads((Path(__file__).parents[1] / "examples" / "assembly.json").read_text())
+    c["mesh"]["size_m"] = 0.009
+    c["geometry"]["board"]["mesh_size_m"] = 0.005
+    c["analysis"]["modes"] = 10
+    config_path = tmp_path / "assembly.json"
+    config_path.write_text(json.dumps(c))
+    result = run(config_path, tmp_path / "run")
+    deck = (tmp_path / "run" / "modal.inp").read_text()
+    assert "ELSET=BOARD" in deck and "MATERIAL=BOARD" in deck
+    g, b = c["geometry"], c["geometry"]["board"]
+    board_volume = b["length_m"] * b["width_m"] * b["thickness_m"]
+    tray = (
+        g["length_m"] * g["width_m"] * g["height_m"]
+        - (g["length_m"] - 0.006) * (g["width_m"] - 0.006) * (g["height_m"] - 0.003)
+        - 4 * np.pi * g["hole_radius_m"] ** 2 * 0.003
+    )
+    lid = g["length_m"] * g["width_m"] * g["lid"]["thickness_m"]
+    posts = 4 * np.pi * b["standoff_radius_m"] ** 2 * b["standoff_height_m"]
+    expected = (tray + lid + posts) * 2700 + board_volume * board_density(b)
+    assert result["mesh"]["mass_kg"] == pytest.approx(expected, rel=1e-6)
+    board = result["coupled_pcb"]
+    # The board on corner standoffs is the softest part of the assembly.
+    assert board["dominant_board_mode"] == 1
+    assert 150 < board["dominant_board_mode_frequency_hz"] < 450
+    assert board["relative_deflection_3sigma_m"] > 0 and board["margin"] is not None
+    assert (tmp_path / "run" / "figures" / "board_mode.png").is_file()

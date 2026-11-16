@@ -24,6 +24,24 @@ The path resolves relative to the JSON configuration. Gmsh converts the STEP fil
 
 An optional `geometry.rib` object adds a fused longitudinal rib with `width_m` and `height_m` measured above the inner base. It spans the cavity along X and must fit inside it without intersecting the mounting holes. `examples/design_variants.json` demonstrates this option.
 
+### Lid and board (assembly model)
+
+`geometry.lid.thickness_m` adds a lid over the full footprint, fused to the wall tops. This is a bonded idealization; a screwed lid is less stiff.
+
+`geometry.board` adds a circuit board centred in plan on four cylindrical standoffs at its corners:
+
+| Key | Meaning |
+|---|---|
+| `length_m`, `width_m`, `thickness_m` | Board size; it must fit inside the walls and below the wall tops |
+| `standoff_height_m`, `standoff_radius_m` | Standoffs, fused to the inner base, in the enclosure material |
+| `standoff_inset_m` | Standoff centre distance from each board edge; must exceed the radius |
+| `mesh_size_m` | Optional finer target size on the board, so the thin plate has enough elements |
+| `material` | Board `youngs_modulus_pa`, `poisson_ratio`, `density_kg_m3` |
+| `smeared_component_mass_kg` | Component mass, smeared uniformly into the board density |
+| `steinberg` | Optional `component_length_m`, `package_constant`, `position_factor`, `board_edge_parallel_to_component_m` for the empirical limit |
+
+The board volume is fragmented against the standoffs, so the standoff-top faces mesh conformally (a bonded joint) while the board keeps its own material set in the CalculiX deck. A board cannot be combined with `geometry.rib`, and standoffs may not intersect a mounting hole. `examples/assembly.json` is the reference assembly.
+
 Meshing is rejected when CAD maximum extent divided by target mesh size exceeds 1000. This catches gross unit mistakes and impractically fine inputs before mesh generation; simplify the model or increase the target size.
 
 ## Supports
@@ -67,4 +85,4 @@ The supported model is `independent_simply_supported_isotropic_plate`. Set `enab
 
 `board_edge_parallel_to_component_m`, `component_length_m`, `package_constant` and `position_factor` feed the empirical Steinberg limit. The reference `C=1`, `r=1` is illustrative of a centred component with an applicable package factor; it is not universal. The inch-based coefficient is evaluated in inches, then converted to metres.
 
-The PCB sees the input profile directly at its supports. The program does not automatically substitute the enclosure probe spectrum, which would require a defensible board-support/coupling model.
+The PCB sees the input profile directly at its supports. For a coupled estimate, define `geometry.board` instead: the board is then part of the finite-element model and is screened from its own computed deflection (see THEORY.md section 5a). Both can be enabled together for comparison.

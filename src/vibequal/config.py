@@ -14,6 +14,70 @@ def positive(value, label):
     return float(value)
 
 
+def board_layout(g):
+    """Board origin, top z and standoff centres for a board centred in the tray."""
+    b, t = g["board"], g["thickness_m"]
+    x0, y0 = (g["length_m"] - b["length_m"]) / 2, (g["width_m"] - b["width_m"]) / 2
+    z0 = t + b["standoff_height_m"]
+    i = b["standoff_inset_m"]
+    centres = [
+        (x, y)
+        for x in (x0 + i, x0 + b["length_m"] - i)
+        for y in (y0 + i, y0 + b["width_m"] - i)
+    ]
+    return {"x0": x0, "y0": y0, "z0": z0, "z_top": z0 + b["thickness_m"], "standoffs": centres}
+
+
+def board_density(b):
+    """FR4 density with the component mass smeared uniformly over the board volume."""
+    volume = b["length_m"] * b["width_m"] * b["thickness_m"]
+    return b["material"]["density_kg_m3"] + b.get("smeared_component_mass_kg", 0) / volume
+
+
+def validate_board(g):
+    b, t = g["board"], g["thickness_m"]
+    for k in [
+        "length_m",
+        "width_m",
+        "thickness_m",
+        "standoff_height_m",
+        "standoff_radius_m",
+        "standoff_inset_m",
+    ]:
+        positive(b[k], f"geometry.board.{k}")
+    if g.get("rib"):
+        raise ValueError("geometry.board cannot be combined with geometry.rib")
+    m = b["material"]
+    for k in ["youngs_modulus_pa", "density_kg_m3"]:
+        positive(m[k], f"geometry.board.material.{k}")
+    if not -1 < m["poisson_ratio"] < 0.5:
+        raise ValueError("geometry.board.material.poisson_ratio must lie between -1 and 0.5")
+    mass = b.get("smeared_component_mass_kg", 0)
+    if isinstance(mass, bool) or not math.isfinite(mass) or mass < 0:
+        raise ValueError("geometry.board.smeared_component_mass_kg must be finite and nonnegative")
+    if "mesh_size_m" in b:
+        positive(b["mesh_size_m"], "geometry.board.mesh_size_m")
+    layout = board_layout(g)
+    if b["length_m"] >= g["length_m"] - 2 * t or b["width_m"] >= g["width_m"] - 2 * t:
+        raise ValueError("The board must fit inside the tray walls")
+    if layout["z_top"] >= g["height_m"]:
+        raise ValueError("Board and standoffs must fit below the top of the walls")
+    if b["standoff_inset_m"] <= b["standoff_radius_m"]:
+        raise ValueError("Standoffs must lie wholly under the board")
+    inset, length, width = g["mount_inset_m"], g["length_m"], g["width_m"]
+    holes = [(x, y) for x in (inset, length - inset) for y in (inset, width - inset)]
+    for sx, sy in layout["standoffs"]:
+        for hx, hy in holes:
+            if math.hypot(sx - hx, sy - hy) <= b["standoff_radius_m"] + g["hole_radius_m"]:
+                raise ValueError("A board standoff intersects a mounting hole")
+    s = b.get("steinberg")
+    if s:
+        for k in ["component_length_m", "package_constant", "board_edge_parallel_to_component_m"]:
+            positive(s[k], f"geometry.board.steinberg.{k}")
+        if not 0 < s["position_factor"] <= 1:
+            raise ValueError("geometry.board.steinberg.position_factor must lie in (0,1]")
+
+
 def validate_config(config):
     c = copy.deepcopy(config)
     for key in ["geometry", "material", "mesh", "supports", "analysis", "profile"]:
@@ -43,6 +107,12 @@ def validate_config(config):
                 raise ValueError("The longitudinal rib must fit inside the tray cavity")
             if abs(inset - g["width_m"] / 2) <= rib["width_m"] / 2 + r:
                 raise ValueError("The longitudinal rib intersects a mounting hole")
+        if g.get("lid"):
+            positive(g["lid"]["thickness_m"], "geometry.lid.thickness_m")
+        if g.get("board"):
+            validate_board(g)
+    elif g.get("lid") or g.get("board"):
+        raise ValueError("geometry.lid and geometry.board require geometry.type tray")
     for k in ["youngs_modulus_pa", "density_kg_m3"]:
         positive(mat[k], f"material.{k}")
     if not -1 < mat["poisson_ratio"] < 0.5:

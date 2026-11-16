@@ -65,6 +65,20 @@ $$Z_{3\sigma,limit}=\frac{0.00022B}{C h r\sqrt{L}}\quad\text{inches}.$$
 
 $B$ is board edge length parallel to the component, $h$ board thickness, $L$ component length, $C$ package factor and $r$ position factor. The result is converted back to metres. Margin is $Z_{limit}/Z_{predicted}-1$. The reference method concerns approximately 20 million stress reversals under its stated assumptions. This implementation gives a deflection screen and **does not calculate service life**, cumulative damage or solder stresses. See the cited Irvine method discussion for applicability limitations.
 
+## 5a. Coupled board on standoffs
+
+When `geometry.board` is defined, the enclosure, standoffs and board share one eigenbasis $\{\phi_r, \omega_r, \Gamma_r\}$. Board bending is the board-centre out-of-plane motion relative to the mean motion of the four standoff tops:
+
+$$\delta_r = \phi_{r,z}(\text{centre}) - \tfrac{1}{4}\sum_{k=1}^{4}\phi_{r,z}(\text{standoff}_k),\qquad c_r = \delta_r\,\Gamma_r.$$
+
+For base acceleration $a(\omega)$ in g, the relative deflection transfer is
+
+$$H_\delta(\omega) = -g_0 \sum_r \frac{c_r}{\omega_r^2-\omega^2+2i\zeta\omega_r\omega},$$
+
+integrated over the input PSD like the probe response. All modes add coherently, so the board responds to the base motion filtered through the enclosure rather than to the raw input. The Steinberg limit then uses the board thickness and the same empirical inputs as section 5. The dominant board mode is the one with the largest quasi-static contribution $|c_r|/\omega_r^2$.
+
+The standoff and lid joints are bonded, the board is isotropic with smeared component mass, and damping is assumed. The result is still a deflection screen, not a service-life prediction.
+
 ## 6. Tap signal processing
 
 The CSV contains uniform sample times and sensor voltage. The mean is removed, the record is cropped around its largest excursion, and a zero-padded periodogram is evaluated. An interior spectral peak in the search band is refined with a three-point log-parabolic interpolation. Actual record resolution is based on record duration; zero padding improves interpolation rather than adding physical information.
@@ -73,4 +87,4 @@ The reported frequency difference is $100(f_{peak}-f_{FEA})/f_{FEA}$. An output-
 
 ## 7. Band-edge example
 
-The illustrative reference profile ends at 2000 Hz. Mode 3 at 2004.177 Hz has zero PSD at its own resonance, so Miles returns zero. The finite-band unit-participation SDOF integral remains about 16.2 g RMS because in-band forcing excites the resonance tail. That is a unit oscillator result, not an isolated modal contribution to the full probe response. The full transfer includes probe coefficients, the rigid-base term and coherent cross terms. Mesh refinement can move this mode inside the excitation band, helping explain why response amplitude is more sensitive than the first natural frequency.
+The illustrative reference profile ends at 2000 Hz. Mode 3 at 2004.177 Hz has zero PSD at its own resonance, so Miles returns zero. The finite-band unit-participation SDOF integral remains about 16.2 g RMS because in-band forcing excites the resonance tail. That is a unit oscillator result, not an isolated modal contribution to the full probe response. The full transfer includes probe coefficients, the rigid-base term and coherent cross terms. Mesh refinement moves this mode inside the excitation band (1944 Hz at 3.5 mm), which is why the response converges more slowly than the first natural frequency. Runs flag such modes in `band_edge_modes`; see VALIDATION.md.
