@@ -6,7 +6,9 @@
       "elements": 3525,
       "first_frequency_hz": 1235.798,
       "max_first_three_sorted_frequency_change_percent": null,
-      "probe_acceleration_grms": 17.17192492839166
+      "probe_acceleration_grms": 17.17192492839166,
+      "probe_change_percent": null,
+      "band_edge_modes": "mode 3 at 2073.9 Hz"
     },
     {
       "size_m": 0.009,
@@ -14,7 +16,9 @@
       "elements": 5346,
       "first_frequency_hz": 1212.265,
       "max_first_three_sorted_frequency_change_percent": 3.480481015399333,
-      "probe_acceleration_grms": 19.377652914735314
+      "probe_acceleration_grms": 19.377652914735314,
+      "probe_change_percent": 11.382843918451835,
+      "band_edge_modes": "mode 3 at 2004.2 Hz"
     },
     {
       "size_m": 0.006,
@@ -22,8 +26,30 @@
       "elements": 9757,
       "first_frequency_hz": 1201.373,
       "max_first_three_sorted_frequency_change_percent": 2.396133814409598,
-      "probe_acceleration_grms": 21.35848704787891
+      "probe_acceleration_grms": 21.35848704787891,
+      "probe_change_percent": 9.27422494254016,
+      "band_edge_modes": "mode 3 at 1957.3 Hz"
+    },
+    {
+      "size_m": 0.0045,
+      "nodes": 32713,
+      "elements": 16527,
+      "first_frequency_hz": 1197.377,
+      "max_first_three_sorted_frequency_change_percent": 0.6116113570781123,
+      "probe_acceleration_grms": 21.66080974609713,
+      "probe_change_percent": 1.3957128185048222,
+      "band_edge_modes": "mode 3 at 1946.2 Hz"
+    },
+    {
+      "size_m": 0.0035,
+      "nodes": 51074,
+      "elements": 25706,
+      "first_frequency_hz": 1196.747,
+      "max_first_three_sorted_frequency_change_percent": 0.14344705627827725,
+      "probe_acceleration_grms": 21.705783635316866,
+      "probe_change_percent": 0.2071977219314069,
+      "band_edge_modes": "mode 3 at 1944.2 Hz"
     }
   ],
-  "interpretation": "Sorted frequency comparison only; inspect mode shapes for swaps. Frequency convergence does not establish convergence of stresses or response amplitudes."
+  "interpretation": "Sorted frequency comparison only; inspect mode shapes for swaps. Frequency convergence does not establish convergence of stresses or response amplitudes. Response changes are largest when a significant mode crosses a profile edge; see band_edge_modes."
 }

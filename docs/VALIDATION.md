@@ -31,15 +31,21 @@ Recorded data: `examples/verification/validation.json`.
 
 ## Enclosure mesh refinement
 
-| Target mesh size | Nodes | Elements | First frequency | Probe acceleration |
-|---:|---:|---:|---:|---:|
-| 12 mm | 6,870 | 3,525 | 1235.798 Hz | 17.1719 g RMS |
-| 9 mm | 10,473 | 5,346 | 1212.265 Hz | 19.3777 g RMS |
-| 6 mm | 19,214 | 9,757 | 1201.373 Hz | 21.3585 g RMS |
+| Target mesh size | Nodes | Elements | First frequency | Mode 3 | Probe acceleration | Change from previous |
+|---:|---:|---:|---:|---:|---:|---:|
+| 12 mm | 6,870 | 3,525 | 1235.798 Hz | 2073.9 Hz | 17.1719 g RMS | — |
+| 9 mm | 10,473 | 5,346 | 1212.265 Hz | 2004.2 Hz | 19.3777 g RMS | 11.38% |
+| 6 mm | 19,214 | 9,757 | 1201.373 Hz | 1957.3 Hz | 21.3585 g RMS | 9.27% |
+| 4.5 mm | 32,713 | 16,527 | 1197.377 Hz | 1946.2 Hz | 21.6608 g RMS | 1.40% |
+| 3.5 mm | 51,074 | 25,706 | 1196.747 Hz | 1944.2 Hz | 21.7058 g RMS | 0.21% |
 
-From 9 to 6 mm, the first frequency changes by 0.91% relative to the refined result. The maximum change among the first three sorted frequencies is 2.40%. Probe acceleration increases by 10.22% relative to the 9 mm result.
+All runs use 50 modes. The first frequency changes by 0.05% and the probe response by 0.21% between the two finest meshes, so both are converged for this model.
 
-All three mesh runs use 50 modes. This supports approximate first-frequency stability but **does not demonstrate converged response amplitude**. Probe snapping, support-area discretization and the third resonance approaching the PSD upper cutoff contribute to sensitivity. For engineering use, refine further, compare fixed/probe coordinates, inspect mode identity and perform a mode-count/damping study. A separate fixed-mesh 10-to-50-mode study captures 90.26% of the solver's available Z mass at 50 modes; probe acceleration changes by 0.0257% from 40 to 50 modes. This is modal-truncation evidence, not amplitude convergence under mesh refinement. X/Y mass capture is 83.76% / 77.89%; those axes need further study. See STUDIES.md.
+**Why the coarse meshes under-predict.** Mode 3 carries 13.5% of the Z effective mass and has the largest probe coefficient. Coarse quadratic tetrahedra make it too stiff, placing it at 2074 Hz and 2004 Hz, just outside the 2000 Hz profile limit, where it receives almost no input. Refinement lowers it to 1944 Hz, inside the band. The response therefore rises sharply until mode 3 settles. The 9 mm screening mesh used by the reference run reads **10.7% low** against the 3.5 mm result; 6 mm is 1.6% low and 4.5 mm is 0.2% low.
+
+Mode 3 remains within three half-power half-bandwidths (3ζf) of the 2000 Hz limit even when converged. Every run now lists such modes in `band_edge_modes` and adds a warning, because real hardware frequencies differing by a few percent would change the in-band response noticeably. Use a 4.5 mm or finer mesh for amplitudes on this geometry.
+
+A separate fixed-mesh 10-to-50-mode study captures 90.26% of the solver's available Z mass at 50 modes; probe acceleration changes by 0.0257% from 40 to 50 modes. This is modal-truncation evidence, separate from mesh convergence. X/Y mass capture is 83.76% / 77.89%; those axes need further study. See STUDIES.md.
 
 Sorted mode comparison is not modal assurance criterion (MAC) tracking; modes can swap order. Stress convergence is outside the current implementation.
 

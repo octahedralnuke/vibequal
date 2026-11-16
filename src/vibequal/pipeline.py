@@ -89,6 +89,14 @@ def run(config_path, output, ccx=None, with_synthetic_tap=False, profile_path=No
             "total effective mass in the excitation direction. Increase mode count "
             "and check response convergence before relying on amplitudes."
         )
+    for m in response["band_edge_modes"]:
+        warnings.append(
+            f"Mode {m['mode']} ({m['frequency_hz']:.1f} Hz, "
+            f"{100 * m['effective_mass_fraction_of_cad']:.1f}% effective mass) lies near the "
+            f"{m['edge_hz']:g} Hz profile limit. A small frequency shift moves its resonance "
+            "in or out of band, so the response depends strongly on mesh convergence and "
+            "real hardware frequencies."
+        )
     if modal["frequencies_hz"][-1] < profile.frequency[-1]:
         warnings.append(
             "Highest extracted mode lies inside the input band; omitted higher "
@@ -187,6 +195,7 @@ def convergence(config_path, output, sizes, ccx=None):
     out = prepare_output(output)
     config = load_config(config_path)
     previous = None
+    previous_probe = None
     rows = []
     for i, size in enumerate(sorted(set(sizes), reverse=True)):
         c = copy.deepcopy(config)
@@ -203,6 +212,7 @@ def convergence(config_path, output, sizes, ccx=None):
             if previous is None
             else 100 * float(np.max(abs(frequencies[:3] - previous[:3]) / frequencies[:3]))
         )
+        probe = response["absolute_acceleration_grms"]
         rows.append(
             {
                 "size_m": size,
@@ -210,10 +220,18 @@ def convergence(config_path, output, sizes, ccx=None):
                 "elements": len(mesh.tetra10),
                 "first_frequency_hz": float(frequencies[0]),
                 "max_first_three_sorted_frequency_change_percent": change,
-                "probe_acceleration_grms": response["absolute_acceleration_grms"],
+                "probe_acceleration_grms": probe,
+                "probe_change_percent": None
+                if previous_probe is None
+                else 100 * abs(probe - previous_probe) / probe,
+                "band_edge_modes": "; ".join(
+                    f"mode {m['mode']} at {m['frequency_hz']:.1f} Hz"
+                    for m in response["band_edge_modes"]
+                ),
             }
         )
         previous = frequencies
+        previous_probe = probe
     if len(rows) < 2:
         raise ValueError("Convergence mesh sizes must contain at least two distinct values")
     write_json(
@@ -222,7 +240,8 @@ def convergence(config_path, output, sizes, ccx=None):
             "rows": rows,
             "interpretation": "Sorted frequency "
             "comparison only; inspect mode shapes for swaps. Frequency convergence does "
-            "not establish convergence of stresses or response amplitudes.",
+            "not establish convergence of stresses or response amplitudes. Response changes "
+            "are largest when a significant mode crosses a profile edge; see band_edge_modes.",
         },
     )
     csv_rows(out / "convergence.csv", rows)

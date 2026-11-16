@@ -38,7 +38,7 @@ vibequal run examples/ribbed_refined.json --out runs/refined-rib
 
 The first denominator is CalculiX's total effective translational mass of the free system. Full CAD mass includes constrained material. Both are recorded so the denominator is explicit. At 50 modes, X/Y capture remains 83.76% / 77.89%; the Z result does not establish adequacy for every input axis.
 
-The Z response changes by 0.0257% from 40 to 50 modes, but the 9-to-6 mm mesh change still moves the response by 10.22%. These are different uncertainties. No residual-flexibility or missing-mass correction is applied, and the numerical stability does not determine the physical damping.
+The Z response changes by 0.0257% from 40 to 50 modes. Mesh refinement is a separate uncertainty: the 9 mm mesh reads 10.7% low against the converged 3.5 mm response because mode 3 sits just outside the 2000 Hz profile limit until the mesh is refined (see VALIDATION.md). No residual-flexibility or missing-mass correction is applied, and the numerical stability does not determine the physical damping.
 
 ```bash
 vibequal mode-study examples/enclosure.json --counts 10 20 30 40 50 --out runs/mode-count

@@ -6,6 +6,12 @@ import numpy as np
 from scipy.integrate import quad
 
 G0 = 9.80665
+# A mode within this many half-power half-bandwidths (zeta * fn) of a profile edge is
+# "near the band edge": a small frequency shift moves part of its resonance in or out of band.
+BAND_EDGE_HALF_BANDWIDTHS = 3
+# Modes below both thresholds contribute negligibly to the probe response.
+SIGNIFICANT_MASS_FRACTION = 0.01
+SIGNIFICANT_PROBE_COEFFICIENT = 0.1
 
 
 @dataclass(frozen=True)
@@ -129,6 +135,14 @@ def sdof_response(profile, frequency_hz, damping_ratio, participation=1.0):
     }
 
 
+def nearest_band_edge(profile, frequency_hz, damping_ratio):
+    """Return the profile edge within BAND_EDGE_HALF_BANDWIDTHS of a mode, else None."""
+    window = BAND_EDGE_HALF_BANDWIDTHS * damping_ratio * frequency_hz
+    edges = [float(profile.frequency[0]), float(profile.frequency[-1])]
+    edge = min(edges, key=lambda e: abs(e - frequency_hz))
+    return edge if abs(edge - frequency_hz) <= window else None
+
+
 def modal_response(mesh, modal, config):
     profile = PSDProfile.from_config(config["profile"])
     a = config["analysis"]
@@ -154,20 +168,37 @@ def modal_response(mesh, modal, config):
     displacement = integrate_response(profile, lambda f: abs(transfers(f)[1]) ** 2, resonances)
     mass = mesh.volume_m3 * config["material"]["density_kg_m3"]
     rows = []
+    band_edge_modes = []
     for i, fn in enumerate(fns):
         sdof = sdof_response(profile, float(fn), zeta)
+        edge = nearest_band_edge(profile, float(fn), zeta)
+        mass_fraction = float(modal["effective_mass_kg"][i, axis] / mass)
+        if edge is not None and (
+            mass_fraction >= SIGNIFICANT_MASS_FRACTION
+            or abs(float(coefficients[i])) >= SIGNIFICANT_PROBE_COEFFICIENT
+        ):
+            band_edge_modes.append(
+                {
+                    "mode": i + 1,
+                    "frequency_hz": float(fn),
+                    "edge_hz": edge,
+                    "effective_mass_fraction_of_cad": mass_fraction,
+                    "probe_coefficient": float(coefficients[i]),
+                }
+            )
         rows.append(
             {
                 "mode": i + 1,
                 "frequency_hz": float(fn),
                 "effective_mass_kg": float(modal["effective_mass_kg"][i, axis]),
-                "effective_mass_fraction_of_cad": float(modal["effective_mass_kg"][i, axis] / mass),
+                "effective_mass_fraction_of_cad": mass_fraction,
                 "probe_coefficient": float(coefficients[i]),
                 "miles_unit_sdof_grms": sdof["miles_unit_participation_grms"],
                 "miles_probe_modal_grms": abs(float(coefficients[i]))
                 * sdof["miles_unit_participation_grms"],
                 "integrated_unit_sdof_grms": sdof["absolute_acceleration_grms"],
                 "inside_excitation_band": bool(profile.frequency[0] <= fn <= profile.frequency[-1]),
+                "near_band_edge": edge is not None,
             }
         )
     grid = np.unique(
@@ -195,6 +226,7 @@ def modal_response(mesh, modal, config):
         "relative_displacement_3sigma_m": 3 * displacement,
         "effective_mass_fraction_of_cad": float(modal["effective_mass_kg"][:, axis].sum() / mass),
         "modes": rows,
+        "band_edge_modes": band_edge_modes,
     }
     if "total_effective_mass" in modal:
         total = float(modal["total_effective_mass"][axis])
