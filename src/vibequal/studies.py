@@ -11,7 +11,7 @@ import numpy as np
 
 from . import __version__
 from .config import load_config, validate_config
-from .geometry import build_mesh
+from .geometry import build_mesh, model_mass_kg
 from .pipeline import csv_rows, hash_file, prepare_output, write_json
 from .solver import find_ccx, solve
 from .vibration import modal_response
@@ -89,7 +89,7 @@ def mode_study(config_path, output, counts=(10, 20, 30, 40, 50), ccx=None):
     print(f"Solving {max(counts)} modes once on an unchanged mesh…", flush=True)
     mesh = build_mesh(c, raw)
     modal = solve(mesh, c, raw, executable)
-    cad_mass = mesh.volume_m3 * c["material"]["density_kg_m3"]
+    cad_mass = model_mass_kg(mesh, c)
     rows, previous = [], None
     for n in counts:
         subset = modal_prefix(modal, n)
@@ -174,7 +174,7 @@ def design_study(specification_path, output, ccx=None):
         mesh = build_mesh(c, raw)
         modal = solve(mesh, c, raw, executable)
         response, _ = modal_response(mesh, modal, c)
-        mass = mesh.volume_m3 * c["material"]["density_kg_m3"]
+        mass = model_mass_kg(mesh, c)
         row = {
             "variant": v["id"],
             "label": v["label"],

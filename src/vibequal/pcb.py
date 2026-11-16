@@ -2,7 +2,8 @@
 
 import numpy as np
 
-from .vibration import sdof_response
+from .config import board_layout
+from .vibration import G0, integrate_response, sdof_response
 
 
 def steinberg_allowable_m(
@@ -51,3 +52,68 @@ def screen_pcb(p, profile):
         "limitations": "Isotropic, four-edge simply supported, first plate mode, smeared component "
         "mass, empirical package factor. No predicted service life or solder-joint stress.",
     }
+
+
+def nearest_node(mesh, point):
+    distances = np.linalg.norm(mesh.xyz - np.asarray(point, dtype=float), axis=1)
+    index = int(np.argmin(distances))
+    return index, float(distances[index])
+
+
+def coupled_board(mesh, modal, config, profile):
+    """Board-centre deflection relative to its standoff tops, from the coupled FE modes.
+
+    The enclosure, standoffs and board share one eigenbasis, so the board sees the
+    filtered base motion rather than the raw input PSD.
+    """
+    g, a = config["geometry"], config["analysis"]
+    b, layout = g["board"], board_layout(g)
+    axis = "xyz".index(a["axis"])
+    zeta = a["damping_ratio"]
+    centre, snap = nearest_node(
+        mesh, (g["length_m"] / 2, g["width_m"] / 2, layout["z_top"])
+    )
+    supports = [nearest_node(mesh, (x, y, layout["z0"]))[0] for x, y in layout["standoffs"]]
+    # Out-of-plane (z) board bending relative to the mean standoff-top motion.
+    relative_shape = modal["shapes"][:, centre, 2] - modal["shapes"][:, supports, 2].mean(axis=1)
+    coefficients = relative_shape * modal["participation"][:, axis]
+    wn = 2 * np.pi * modal["frequencies_hz"]
+
+    def transfer_squared(f):
+        w = 2 * np.pi * f
+        return abs(G0 * sum(coefficients / (wn**2 - w**2 + 2j * zeta * wn * w))) ** 2
+
+    resonances = [(float(fn), zeta) for fn in modal["frequencies_hz"]]
+    rms = integrate_response(profile, transfer_squared, resonances)
+    three_sigma = 3 * rms
+    # Largest quasi-static contribution |coefficient| / wn^2 to the relative deflection.
+    dominant = int(np.argmax(np.abs(coefficients) / wn**2))
+    result = {
+        "model": "fea_coupled_board_on_standoffs",
+        "board_centre_node": int(mesh.node_ids[centre]),
+        "board_centre_snap_distance_m": snap,
+        "standoff_reference_nodes": [int(mesh.node_ids[i]) for i in supports],
+        "dominant_board_mode": dominant + 1,
+        "dominant_board_mode_frequency_hz": float(modal["frequencies_hz"][dominant]),
+        "relative_deflection_rms_m": rms,
+        "relative_deflection_3sigma_m": three_sigma,
+        "allowable_3sigma_m": None,
+        "margin": None,
+        "excitation_assumption": "Base PSD applied at the enclosure mounts; the board responds "
+        "through the coupled enclosure, standoff and board modes.",
+        "limitations": "Bonded standoff and lid joints, isotropic FR4, smeared component mass, "
+        "assumed modal damping, single-axis input. Deflection is relative to the mean "
+        "standoff-top motion. No predicted service life or solder-joint stress.",
+    }
+    s = b.get("steinberg")
+    if s:
+        allowable = steinberg_allowable_m(
+            s["board_edge_parallel_to_component_m"],
+            b["thickness_m"],
+            s["component_length_m"],
+            s["package_constant"],
+            s["position_factor"],
+        )
+        result["allowable_3sigma_m"] = allowable
+        result["margin"] = allowable / three_sigma - 1 if three_sigma else None
+    return result

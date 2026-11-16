@@ -71,6 +71,38 @@ def create_tap_plot(arrays, result, path):
     save(fig, path)
 
 
+def board_mode_plot(mesh, modal, summary, path):
+    """Top view of the board's dominant mode: out-of-plane shape relative to the standoffs."""
+    from .config import board_layout
+    from .geometry import BOARD
+
+    board = summary["coupled_pcb"]
+    layout = board_layout(summary["geometry"])
+    mode = board["dominant_board_mode"] - 1
+    nodes = np.unique(mesh.tetra10[mesh.element_material == BOARD])
+    index = np.searchsorted(mesh.node_ids, nodes)
+    top = np.isclose(mesh.xyz[index, 2], layout["z_top"], atol=1e-7)
+    index = index[top]
+    references = np.searchsorted(mesh.node_ids, board["standoff_reference_nodes"])
+    shape = modal["shapes"][mode, index, 2] - modal["shapes"][mode, references, 2].mean()
+    shape = shape / np.max(np.abs(shape))
+    style()
+    fig, ax = plt.subplots(figsize=(7, 4.4), constrained_layout=True)
+    xy = mesh.xyz[index, :2] * 1000
+    contour = ax.tricontourf(xy[:, 0], xy[:, 1], shape, levels=21, cmap="RdBu_r", vmin=-1, vmax=1)
+    for x, y in layout["standoffs"]:
+        ax.plot(x * 1000, y * 1000, "o", color="#172c3e", markersize=7)
+    ax.set_aspect("equal")
+    ax.set(
+        xlabel="x (mm)",
+        ylabel="y (mm)",
+        title=f"Board mode {mode + 1} · {board['dominant_board_mode_frequency_hz']:.1f} Hz\n"
+        "shape relative to the standoffs (dots)",
+    )
+    fig.colorbar(contour, ax=ax, label="Normalized out-of-plane displacement")
+    save(fig, path)
+
+
 def create_report(out, summary, mesh, modal, spectra, tap_arrays=None):
     out = Path(out)
     figures = out / "figures"
@@ -95,6 +127,8 @@ def create_report(out, summary, mesh, modal, spectra, tap_arrays=None):
     ax.set(xlabel="Frequency (Hz)", ylabel="Acceleration PSD (g²/Hz)")
     ax.legend(frameon=False)
     save(fig, figures / "response_psd.png")
+    if summary.get("coupled_pcb"):
+        board_mode_plot(mesh, modal, summary, figures / "board_mode.png")
     fig, ax = plt.subplots(figsize=(10, 3.2), constrained_layout=True)
     ax.bar(
         [row["mode"] for row in r["modes"]],
@@ -210,6 +244,30 @@ def create_report(out, summary, mesh, modal, spectra, tap_arrays=None):
         )
     else:
         replacements["__PCB__"] = "<p>PCB screening disabled in this configuration.</p>"
+    board = summary.get("coupled_pcb")
+    if board:
+        if board["margin"] is None:
+            verdict, limit = "No Steinberg inputs", "<div><strong>—</strong>Steinberg 3σ limit</div>"
+        else:
+            verdict = (
+                "Below empirical limit" if board["margin"] >= 0 else "Exceeds empirical limit"
+            )
+            limit = (
+                f"<div><strong>{board['allowable_3sigma_m'] * 1000:.4f}<small>mm</small></strong>"
+                f"Steinberg 3σ limit</div><div><strong>{board['margin']:+.2f}</strong>"
+                "Deflection margin</div>"
+            )
+        replacements["__PCB__"] += (
+            "<h3>Coupled board on standoffs</h3>"
+            f"<div class='pill amber'>{verdict} · screening only</div>"
+            f"<div class='metric-row'><div><strong>{board['dominant_board_mode_frequency_hz']:.1f}"
+            f"<small>Hz</small></strong>Dominant board mode ({board['dominant_board_mode']})</div>"
+            f"<div><strong>{board['relative_deflection_3sigma_m'] * 1000:.4f}<small>mm</small>"
+            f"</strong>3σ deflection vs standoffs</div>{limit}</div>"
+            f"<p>{html.escape(board['excitation_assumption'])}</p>"
+            f"<img class='plot' src='{embed('board_mode.png')}' alt='Dominant board mode shape'>"
+            f"<p class='muted'>{html.escape(board['limitations'])}</p>"
+        )
     tap = summary["tap"]
     if tap:
         replacements["__TAP__"] = (

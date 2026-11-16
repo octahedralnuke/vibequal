@@ -466,7 +466,8 @@ def build(run, verification, output):
             "coupled enclosure/PCB dynamics, solder stress, cumulative fatigue damage or "
             "standards qualification are included. The demonstration PSD is educational. "
             "The next engineering steps are fixture-aware frequency correlation, damping "
-            "estimation, X/Y-axis response studies and a coupled PCB model."
+            "estimation, X/Y-axis response studies and physical correlation of the coupled "
+            "lid-and-board assembly model in examples/assembly_run."
         )
     )
     story.append(

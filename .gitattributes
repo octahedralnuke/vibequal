@@ -6,3 +6,4 @@
 *.step -diff -text
 examples/reference_run/** -diff -text
 examples/studies/**/modal.inp -diff -text
+examples/assembly_run/** -diff -text

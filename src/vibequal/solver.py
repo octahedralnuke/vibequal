@@ -20,25 +20,45 @@ def find_ccx(explicit=None):
     )
 
 
+def _material(f, name, youngs, poisson, density):
+    f.write(
+        f"*MATERIAL, NAME={name}\n*ELASTIC\n{youngs:.12g}, {poisson:.12g}\n"
+        f"*DENSITY\n{density:.12g}\n"
+    )
+
+
 def write_deck(mesh, config, path):
+    from .config import board_density
+    from .geometry import BOARD
+
     mat = config["material"]
+    materials = (
+        mesh.element_material
+        if len(mesh.element_material)
+        else np.zeros(len(mesh.element_ids), dtype=int)
+    )
+    sets = [("BODY", materials != BOARD), ("BOARD", materials == BOARD)]
     with Path(path).open("w", encoding="ascii") as f:
         f.write("*HEADING\nVibeQual SI units: m, kg, s, N, Pa\n*NODE, NSET=ALLNODES\n")
         for node, xyz in zip(mesh.node_ids, mesh.xyz, strict=True):
             f.write(f"{node}, {xyz[0]:.12g}, {xyz[1]:.12g}, {xyz[2]:.12g}\n")
-        f.write("*ELEMENT, TYPE=C3D10, ELSET=BODY\n")
-        for tag, row in zip(mesh.element_ids, mesh.tetra10, strict=True):
-            f.write(f"{tag}, " + ", ".join(map(str, row)) + "\n")
+        for name, selected in sets:
+            if not selected.any():
+                continue
+            f.write(f"*ELEMENT, TYPE=C3D10, ELSET={name}\n")
+            for tag, row in zip(mesh.element_ids[selected], mesh.tetra10[selected], strict=True):
+                f.write(f"{tag}, " + ", ".join(map(str, row)) + "\n")
         f.write("*NSET, NSET=FIXED\n")
         for i in range(0, len(mesh.fixed_ids), 16):
             f.write(", ".join(map(str, mesh.fixed_ids[i : i + 16])) + "\n")
-        f.write(
-            f"*MATERIAL, NAME=MAT\n*ELASTIC\n{mat['youngs_modulus_pa']:.12g}, "
-            f"{mat['poisson_ratio']:.12g}\n*DENSITY\n{mat['density_kg_m3']:.12g}\n"
-        )
-        f.write(
-            "*SOLID SECTION, ELSET=BODY, MATERIAL=MAT\n*BOUNDARY\nFIXED, 1, 3\n*STEP\n*FREQUENCY\n"
-        )
+        _material(f, "MAT", mat["youngs_modulus_pa"], mat["poisson_ratio"], mat["density_kg_m3"])
+        f.write("*SOLID SECTION, ELSET=BODY, MATERIAL=MAT\n")
+        if sets[1][1].any():
+            board = config["geometry"]["board"]
+            m = board["material"]
+            _material(f, "BOARD", m["youngs_modulus_pa"], m["poisson_ratio"], board_density(board))
+            f.write("*SOLID SECTION, ELSET=BOARD, MATERIAL=BOARD\n")
+        f.write("*BOUNDARY\nFIXED, 1, 3\n*STEP\n*FREQUENCY\n")
         f.write(
             f"{config['analysis']['modes']}\n*NODE PRINT, NSET=ALLNODES\nU\n"
             "*NODE FILE\nU\n*END STEP\n"

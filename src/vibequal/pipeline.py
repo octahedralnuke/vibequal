@@ -13,8 +13,8 @@ import numpy as np
 
 from . import __version__
 from .config import load_config
-from .geometry import build_mesh
-from .pcb import screen_pcb
+from .geometry import build_mesh, model_mass_kg
+from .pcb import coupled_board, screen_pcb
 from .solver import find_ccx, solve
 from .tap import analyze_tap, synthetic_tap
 from .vibration import PSDProfile, modal_response
@@ -109,6 +109,16 @@ def run(config_path, output, ccx=None, with_synthetic_tap=False, profile_path=No
             "PCB result is an independent plate estimate with direct base PSD; "
             "it is not an enclosure-coupled fatigue-life prediction."
         )
+    board = None
+    if config["geometry"].get("board"):
+        board = coupled_board(mesh, modal, config, profile)
+        warnings.append(
+            "The board is coupled to the enclosure through bonded standoffs. Its deflection "
+            "uses assumed damping and smeared component mass; the Steinberg comparison is an "
+            "empirical screen, not a fatigue-life prediction."
+        )
+    if config["geometry"].get("lid"):
+        warnings.append("The lid is bonded to the wall tops; real screwed lids are less stiff.")
     summary = {
         "project": "VibeQual",
         "version": __version__,
@@ -122,7 +132,7 @@ def run(config_path, output, ccx=None, with_synthetic_tap=False, profile_path=No
             "elements": len(mesh.tetra10),
             "fixed_nodes": len(mesh.fixed_ids),
             "volume_m3": mesh.volume_m3,
-            "mass_kg": mesh.volume_m3 * config["material"]["density_kg_m3"],
+            "mass_kg": model_mass_kg(mesh, config),
             "element_type": "C3D10",
             "target_size_m": config["mesh"]["size_m"],
         },
@@ -130,6 +140,8 @@ def run(config_path, output, ccx=None, with_synthetic_tap=False, profile_path=No
         "profile": config["profile"],
         "response": response,
         "pcb": pcb,
+        "coupled_pcb": board,
+        "geometry": config["geometry"],
         "warnings": warnings,
         "tap": None,
     }

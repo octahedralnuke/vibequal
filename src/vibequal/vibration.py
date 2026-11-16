@@ -5,6 +5,8 @@ from dataclasses import dataclass
 import numpy as np
 from scipy.integrate import quad
 
+from .geometry import model_mass_kg
+
 G0 = 9.80665
 # A mode within this many half-power half-bandwidths (zeta * fn) of a profile edge is
 # "near the band edge": a small frequency shift moves part of its resonance in or out of band.
@@ -166,7 +168,7 @@ def modal_response(mesh, modal, config):
     resonances = [(float(fn), zeta) for fn in fns]
     accel = integrate_response(profile, lambda f: abs(transfers(f)[0]) ** 2, resonances)
     displacement = integrate_response(profile, lambda f: abs(transfers(f)[1]) ** 2, resonances)
-    mass = mesh.volume_m3 * config["material"]["density_kg_m3"]
+    mass = model_mass_kg(mesh, config)
     rows = []
     band_edge_modes = []
     for i, fn in enumerate(fns):

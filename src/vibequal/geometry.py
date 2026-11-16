@@ -1,9 +1,13 @@
 """Gmsh OpenCASCADE geometry and C3D10 mesh export."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 import numpy as np
+
+from .config import board_density, board_layout
+
+BODY, BOARD = 0, 1
 
 
 @dataclass
@@ -15,6 +19,9 @@ class Mesh:
     triangles: np.ndarray
     fixed_ids: np.ndarray
     volume_m3: float
+    # Per-element material index (BODY or BOARD); empty means every element is BODY.
+    element_material: np.ndarray = field(default_factory=lambda: np.zeros(0, dtype=int))
+    board_volume_m3: float = 0.0
 
     def save(self, path):
         np.savez_compressed(path, **vars(self))
@@ -57,6 +64,13 @@ def select_supports(xyz, specification):
     if np.linalg.matrix_rank(xyz[mask] - xyz[mask].mean(axis=0), tol=1e-10) < 2:
         raise ValueError("Clamped support nodes are collinear; rigid rotation remains possible")
     return mask
+
+
+def model_mass_kg(mesh, config):
+    """CAD mass, using the smeared board density for the board volume."""
+    body = (mesh.volume_m3 - mesh.board_volume_m3) * config["material"]["density_kg_m3"]
+    board = config.get("geometry", {}).get("board")
+    return body + (mesh.board_volume_m3 * board_density(board) if board else 0.0)
 
 
 def build_mesh(config, directory):
@@ -106,15 +120,43 @@ def build_mesh(config, directory):
                         rib["width_m"],
                         rib["height_m"],
                     )
-                    occ.fuse(body, [(3, tag)])
+                    body, _ = occ.fuse(body, [(3, tag)])
+                if g.get("lid"):
+                    # The lid is bonded to the wall tops: an idealized, fully tied joint.
+                    lid = occ.addBox(0, 0, height, length, width, g["lid"]["thickness_m"])
+                    body, _ = occ.fuse(body, [(3, lid)])
+                if g.get("board"):
+                    b, layout = g["board"], board_layout(g)
+                    posts = [
+                        occ.addCylinder(
+                            x, y, t, 0, 0, b["standoff_height_m"], b["standoff_radius_m"]
+                        )
+                        for x, y in layout["standoffs"]
+                    ]
+                    body, _ = occ.fuse(body, [(3, tag) for tag in posts])
+                    plate = occ.addBox(
+                        layout["x0"],
+                        layout["y0"],
+                        layout["z0"],
+                        b["length_m"],
+                        b["width_m"],
+                        b["thickness_m"],
+                    )
+                    # Fragmenting shares the standoff-top faces, so the bonded interface
+                    # meshes conformally while the board keeps its own material.
+                    _, mapping = occ.fragment(body, [(3, plate)])
+                    board_tags = {tag for dim, tag in mapping[-1] if dim == 3}
         occ.synchronize()
         volumes = gmsh.model.getEntities(3)
-        if len(volumes) != 1:
+        if not g.get("board"):
+            board_tags = set()
+        if len(volumes) - len(board_tags) != 1 or (g.get("board") and len(board_tags) != 1):
             raise ValueError(
                 f"Expected one connected solid, found {len(volumes)}. "
                 "Fuse or simplify the assembly before importing."
             )
         volume = sum(occ.getMass(dim, tag) for dim, tag in volumes)
+        board_volume = sum(occ.getMass(3, tag) for tag in board_tags)
         bounds = gmsh.model.getBoundingBox(-1, -1)
         size = config["mesh"]["size_m"]
         if max(bounds[i + 3] - bounds[i] for i in range(3)) / size > 1000:
@@ -127,7 +169,13 @@ def build_mesh(config, directory):
         # labeled millimetres in STEP. Importing the asset converts them back to metres.
         gmsh.write(str(step_path))
         gmsh.option.setNumber("Mesh.MeshSizeMax", size)
-        gmsh.option.setNumber("Mesh.MeshSizeMin", size * 0.4)
+        board_size = g.get("board", {}).get("mesh_size_m", size)
+        gmsh.option.setNumber("Mesh.MeshSizeMin", min(size, board_size) * 0.4)
+        if board_tags and board_size < size:
+            points = gmsh.model.getBoundary(
+                [(3, tag) for tag in board_tags], combined=False, recursive=True
+            )
+            gmsh.model.mesh.setSize(points, board_size)
         gmsh.option.setNumber("Mesh.MeshSizeFromCurvature", 12)
         gmsh.option.setNumber("Mesh.ElementOrder", 1)
         gmsh.option.setNumber("Mesh.SecondOrderLinear", 1)
@@ -138,10 +186,15 @@ def build_mesh(config, directory):
         tags, flat_xyz, _ = gmsh.model.mesh.getNodes()
         sort = np.argsort(tags)
         tags, xyz = np.asarray(tags, dtype=int)[sort], np.asarray(flat_xyz).reshape(-1, 3)[sort]
-        types, element_tags, element_nodes = gmsh.model.mesh.getElements(3)
-        if list(types) != [11]:
-            raise ValueError(f"Expected Gmsh tetra10 (type 11), found {types}")
-        raw = np.asarray(element_nodes[0], dtype=int).reshape(-1, 10)
+        element_ids, raw, materials = [], [], []
+        for _, tag in volumes:
+            types, element_tags, element_nodes = gmsh.model.mesh.getElements(3, tag)
+            if list(types) != [11]:
+                raise ValueError(f"Expected Gmsh tetra10 (type 11), found {types}")
+            element_ids.append(np.asarray(element_tags[0], dtype=int))
+            raw.append(np.asarray(element_nodes[0], dtype=int).reshape(-1, 10))
+            materials.append(np.full(len(element_ids[-1]), BOARD if tag in board_tags else BODY))
+        element_ids, raw = np.concatenate(element_ids), np.concatenate(raw)
         lookup = dict(zip(tags, xyz, strict=True))
         tetra = np.array([c3d10_order(row, lookup) for row in raw], dtype=int)
         surface_types, _, surface_nodes = gmsh.model.mesh.getElements(2)
@@ -155,11 +208,13 @@ def build_mesh(config, directory):
         mesh = Mesh(
             tags,
             xyz,
-            np.asarray(element_tags[0], dtype=int),
+            element_ids,
             tetra,
             np.asarray(triangles, dtype=int),
             tags[support_mask],
             float(volume),
+            np.concatenate(materials),
+            float(board_volume),
         )
         mesh.save(out / "mesh.npz")
         (out / "gmsh.log").write_text(
